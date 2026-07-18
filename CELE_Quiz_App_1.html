@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#141E3C">
+<title>CELE Quiz Master — Sept 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F6FB; --ink:#17223B; --muted:#5A6780; --card:#fff;
+  --psad:#2F4BD0; --psad-soft:#E7EBFB; --mste:#E08A00; --mste-soft:#FCF1DD;
+  --hge:#0E8F8F; --hge-soft:#DFF3F1; --good:#2E9E52; --good-soft:#E3F5E9;
+  --bad:#D14040; --bad-soft:#FBE7E7; --navy:#141E3C;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.45;padding-bottom:env(safe-area-inset-bottom);}
+.app{max-width:640px;margin:0 auto;padding:0 16px 60px;}
+.screen{display:none;} .screen.on{display:block;animation:fade .25s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* header */
+.top{background:linear-gradient(135deg,#141E3C,#1E2F86 60%,#0E8F8F 140%);color:#fff;margin:0 -16px;padding:26px 22px 20px;border-radius:0 0 22px 22px;}
+.top .eyebrow{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#9FE8DF;font-weight:700;}
+.top h1{font-family:'Sora';font-size:24px;margin-top:5px;}
+.top h1 span{color:#FFC65C;}
+.top p{font-size:12.5px;color:#C6D2F2;margin-top:4px;}
+
+/* start screen */
+.panel{background:var(--card);border-radius:16px;padding:18px;margin-top:16px;box-shadow:0 2px 10px rgba(23,34,59,.07);}
+.panel h3{font-family:'Sora';font-size:15px;margin-bottom:12px;}
+.optrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.optbtn{border:2px solid #E1E7F2;background:#fff;border-radius:12px;padding:13px 12px;font-family:'Inter';font-weight:700;font-size:13.5px;color:var(--ink);cursor:pointer;text-align:left;transition:.15s;}
+.optbtn small{display:block;font-weight:500;color:var(--muted);font-size:11px;margin-top:2px;}
+.optbtn.sel{border-color:var(--navy);background:#EEF2FF;box-shadow:0 0 0 3px rgba(47,75,208,.12);}
+.optbtn.s-psad.sel{border-color:var(--psad);} .optbtn.s-mste.sel{border-color:var(--mste);background:#FFF6E8;} .optbtn.s-hge.sel{border-color:var(--hge);background:#EAF7F5;}
+.go{width:100%;margin-top:18px;background:linear-gradient(120deg,#1E2F86,#2F4BD0);color:#fff;border:none;border-radius:14px;padding:16px;font-family:'Sora';font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 6px 16px rgba(47,75,208,.35);}
+.go:active{transform:scale(.98);}
+
+/* quiz screen */
+.qbar{display:flex;align-items:center;justify-content:space-between;margin:16px 0 10px;font-size:12.5px;font-weight:700;color:var(--muted);}
+.timer{background:var(--navy);color:#FFC65C;border-radius:99px;padding:5px 12px;font-variant-numeric:tabular-nums;}
+.prog{height:8px;background:#E1E7F2;border-radius:99px;overflow:hidden;margin-bottom:14px;}
+.prog div{height:100%;width:0;background:linear-gradient(90deg,#2F4BD0,#0E8F8F);border-radius:99px;transition:width .3s;}
+.subjchip{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.08em;color:#fff;border-radius:6px;padding:4px 9px;margin-bottom:8px;}
+.qcard{background:var(--card);border-radius:16px;padding:18px;box-shadow:0 2px 10px rgba(23,34,59,.07);}
+.qtext{font-size:15px;font-weight:600;line-height:1.5;}
+.choices{margin-top:14px;display:flex;flex-direction:column;gap:9px;}
+.choice{display:flex;align-items:center;gap:11px;border:2px solid #E1E7F2;border-radius:12px;padding:13px 14px;background:#fff;font-size:14.5px;font-weight:600;cursor:pointer;text-align:left;width:100%;transition:.15s;}
+.choice .lbl{flex:none;width:26px;height:26px;border-radius:50%;background:#EEF1F8;color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;}
+.choice.picked{border-color:var(--psad);background:#EEF2FF;}
+.choice.correct{border-color:var(--good);background:var(--good-soft);}
+.choice.correct .lbl{background:var(--good);color:#fff;}
+.choice.wrong{border-color:var(--bad);background:var(--bad-soft);}
+.choice.wrong .lbl{background:var(--bad);color:#fff;}
+.choice:disabled{cursor:default;opacity:1;}
+.verdict{margin-top:12px;border-radius:12px;padding:11px 14px;font-weight:800;font-size:14px;display:none;}
+.verdict.good{display:block;background:var(--good-soft);color:var(--good);}
+.verdict.bad{display:block;background:var(--bad-soft);color:var(--bad);}
+.nextbtn{width:100%;margin-top:14px;background:var(--navy);color:#fff;border:none;border-radius:14px;padding:15px;font-family:'Sora';font-weight:800;font-size:15px;cursor:pointer;display:none;}
+
+/* solution block */
+.sol{margin-top:14px;background:#FBFCFF;border:1.5px dashed #C7D2EC;border-radius:14px;padding:15px;display:none;}
+.sol h4{font-family:'Sora';font-size:13px;color:#1E2F86;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+.step{display:flex;gap:10px;margin-bottom:10px;font-size:13.5px;}
+.step .n{flex:none;width:20px;height:20px;border-radius:50%;background:#1E2F86;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.fx{background:#EEF2FF;border-radius:9px;padding:8px 10px;font-family:'Cambria Math',Georgia,serif;font-size:15px;margin:5px 0;display:inline-block;}
+.ans{background:var(--good-soft);border-radius:9px;padding:8px 12px;font-weight:800;color:var(--good);font-size:14px;display:inline-block;}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px;}
+.frac .top{border-bottom:1.5px solid currentColor;padding:0 4px 1px;}
+.frac .bot{padding:1px 4px 0;}
+sub,sup{font-size:.68em;}
+.diagram{margin:8px 0 12px;text-align:center;}
+.diagram svg{max-width:100%;height:auto;background:#fff;border-radius:10px;border:1px solid #E6EAF4;}
+.dcap{font-size:11px;color:var(--muted);margin-top:4px;font-style:italic;}
+
+/* results */
+.ring{width:150px;height:150px;margin:20px auto 8px;position:relative;}
+.ring svg{transform:rotate(-90deg);}
+.ring .pct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:30px;}
+.ring .pct small{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.1em;}
+.passline{text-align:center;font-size:13px;color:var(--muted);margin-bottom:6px;}
+.badge{display:block;width:max-content;margin:6px auto 0;font-family:'Sora';font-weight:800;font-size:14px;padding:7px 18px;border-radius:99px;}
+.badge.pass{background:var(--good-soft);color:var(--good);}
+.badge.fail{background:var(--bad-soft);color:var(--bad);}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:16px;}
+.stat{background:#fff;border-radius:12px;padding:12px;text-align:center;box-shadow:0 2px 8px rgba(23,34,59,.06);}
+.stat b{font-family:'Sora';font-size:19px;display:block;}
+.stat span{font-size:10.5px;color:var(--muted);font-weight:700;letter-spacing:.05em;}
+.review-item{margin-top:14px;}
+.rev-head{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;font-weight:600;}
+.rev-ic{flex:none;width:22px;height:22px;border-radius:50%;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.ghost{width:100%;margin-top:16px;background:#fff;color:var(--navy);border:2px solid var(--navy);border-radius:14px;padding:14px;font-family:'Sora';font-weight:800;font-size:14px;cursor:pointer;}
+.iosnote{margin-top:16px;font-size:12px;color:var(--muted);background:#EEF2FF;border-radius:12px;padding:12px 14px;}
+
+/* home mode buttons */
+.homebtns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
+.modecard{border:none;border-radius:16px;padding:20px 14px;font-family:'Sora';font-weight:800;font-size:16px;color:#fff;cursor:pointer;text-align:center;box-shadow:0 6px 16px rgba(23,34,59,.18);}
+.modecard small{display:block;font-family:'Inter';font-weight:500;font-size:11.5px;opacity:.85;margin-top:5px;}
+.mc-study{background:linear-gradient(135deg,#0E8F8F,#075E5E);}
+.mc-quiz{background:linear-gradient(135deg,#2F4BD0,#1E2F86);}
+.modecard:active{transform:scale(.97);}
+
+/* study mode */
+.stabs{display:flex;gap:8px;margin:16px 0 12px;}
+.stab{flex:1;border:none;border-radius:10px;padding:11px 6px;font-family:'Sora';font-weight:800;font-size:13px;color:#fff;opacity:.45;cursor:pointer;}
+.stab.on{opacity:1;box-shadow:0 4px 12px rgba(23,34,59,.2);}
+.st-psad{background:var(--psad);} .st-mste{background:var(--mste);} .st-hge{background:var(--hge);}
+.acc{background:#fff;border-radius:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(23,34,59,.06);overflow:hidden;}
+.acc-h{width:100%;border:none;background:none;display:flex;align-items:center;gap:10px;padding:15px 16px;font-family:'Sora';font-weight:700;font-size:14px;color:var(--ink);cursor:pointer;text-align:left;}
+.acc-h .num{flex:none;font-size:10px;font-weight:800;letter-spacing:.08em;color:#fff;border-radius:6px;padding:4px 8px;}
+.acc-h .arrow{margin-left:auto;transition:.2s;color:var(--muted);}
+.acc.open .arrow{transform:rotate(90deg);}
+.acc-b{display:none;padding:0 16px 15px;}
+.acc.open .acc-b{display:block;}
+.lec{font-size:13px;color:#3D4A66;background:#F6F8FD;border-left:4px solid #C7D2EC;border-radius:0 10px 10px 0;padding:11px 13px;margin-bottom:12px;}
+.scard{border:1.5px solid #E6EAF4;border-radius:12px;padding:12px 13px;margin-bottom:9px;}
+.scard .sn{font-weight:700;font-size:13px;margin-bottom:6px;}
+.scard .sfx{border-radius:9px;padding:9px 11px;font-family:'Cambria Math',Georgia,serif;font-size:15.5px;text-align:center;margin-bottom:6px;overflow-x:auto;}
+.scard .sh{font-size:12px;color:var(--muted);}
+.backbtn{background:none;border:none;font-family:'Sora';font-weight:800;font-size:13px;color:var(--navy);cursor:pointer;padding:14px 0 0;}
+.timer.warn{background:var(--bad);color:#fff;animation:pulse 1s infinite;}
+@keyframes pulse{50%{opacity:.6;}}
+.pacenote{font-size:11.5px;color:var(--muted);margin-top:8px;text-align:center;}
+.credit{margin-top:22px;text-align:center;font-size:12.5px;color:var(--muted);letter-spacing:.03em;}
+.quizctrl{display:flex;gap:10px;margin-top:14px;}
+.ctrlbtn{flex:1;border:2px solid #C7D2EC;background:#fff;border-radius:12px;padding:12px;font-family:'Sora';font-weight:800;font-size:12.5px;color:var(--navy);cursor:pointer;}
+.ctrlbtn.danger{border-color:#F0C4C4;color:var(--bad);}
+.pauseovl{display:none;position:fixed;inset:0;background:rgba(20,30,60,.86);z-index:99;align-items:center;justify-content:center;padding:24px;}
+.pauseovl.on{display:flex;}
+.pausebox{background:#fff;border-radius:20px;padding:26px 22px;text-align:center;max-width:340px;width:100%;}
+.btnrow{display:flex;gap:10px;align-items:stretch;}
+.btnrow .ghost,.btnrow .go{flex:1;margin-top:16px;}
+.nameinput{width:100%;border:2px solid #C7D2EC;border-radius:12px;padding:13px 14px;font-family:'Inter';font-size:15px;font-weight:600;color:var(--ink);margin-top:4px;}
+.nameinput:focus{outline:none;border-color:var(--psad);}
+.greet{background:linear-gradient(120deg,#fff,#EEF2FF);border-radius:16px;padding:15px 17px;margin-top:16px;box-shadow:0 2px 10px rgba(23,34,59,.07);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.greet b{font-family:'Sora';font-size:16px;}
+.greet .edit{border:none;background:none;font-size:11.5px;font-weight:700;color:var(--muted);cursor:pointer;text-decoration:underline;}
+.kpirow{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px;}
+.recitem{display:flex;align-items:center;gap:10px;background:#FBFCFF;border:1.5px solid #E6EAF4;border-radius:12px;padding:11px 12px;margin-top:8px;}
+.recitem .acc-pct{flex:none;font-family:'Sora';font-weight:800;font-size:15px;width:52px;text-align:center;border-radius:9px;padding:6px 0;color:#fff;}
+.recitem .meta{flex:1;font-size:12.5px;font-weight:600;line-height:1.35;}
+.recitem .meta small{display:block;color:var(--muted);font-weight:500;font-size:11px;}
+.recitem .gobtn{flex:none;border:none;border-radius:9px;background:var(--navy);color:#fff;font-family:'Sora';font-weight:800;font-size:11px;padding:9px 11px;cursor:pointer;}
+.optbtn.dis{opacity:.35;pointer-events:none;}
+.histline{font-size:12px;color:var(--muted);padding:7px 0;border-bottom:1px solid #EEF1F8;display:flex;justify-content:space-between;gap:8px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="top">
+    <div class="eyebrow">Board of Civil Engineering · September 2026</div>
+    <h1>CELE <span>Training</span> App 🎓</h1>
+    <p id="tagline">Study lectures · board-paced quizzes · illustrated solutions</p>
+  </div>
+
+  <!-- HOME -->
+  <div id="scr-home" class="screen on">
+    <div id="homeuser"></div>
+    <div class="homebtns">
+      <button class="modecard mc-study" onclick="openStudy()">📚 STUDY<small>Lectures &amp; formulas by topic</small></button>
+      <button class="modecard mc-quiz" onclick="showScreen('scr-start')">📝 QUIZ<small>Timed, board-paced mock exam</small></button>
+    </div>
+    <div id="homedash"></div>
+    <div class="credit">Created by <b>Gemzscreen</b></div>
+  </div>
+
+  <!-- STUDY -->
+  <div id="scr-study" class="screen">
+    <div class="stabs">
+      <button class="stab st-psad on" onclick="renderStudy('PSAD',this)">🏗 PSAD</button>
+      <button class="stab st-mste" onclick="renderStudy('MSTE',this)">📐 MSTE</button>
+      <button class="stab st-hge" onclick="renderStudy('HGE',this)">💧 HGE</button>
+    </div>
+    <div id="studylist"></div>
+    <button class="backbtn" onclick="showScreen('scr-home')">◂ BACK TO HOME</button>
+  </div>
+
+  <!-- START -->
+  <div id="scr-start" class="screen">
+    <button class="backbtn" onclick="showScreen('scr-home')">◂ HOME</button>
+    <div class="panel">
+      <h3>1 · Choose your subject</h3>
+      <div class="optrow" id="subjrow">
+        <button class="optbtn s-psad sel" data-subj="PSAD">🏗 PSAD<small>Structural · 35%</small></button>
+        <button class="optbtn s-mste" data-subj="MSTE">📐 MSTE<small>Math · Surveying · CM · 35%</small></button>
+        <button class="optbtn s-hge" data-subj="HGE">💧 HGE<small>Hydraulics · Geotech · 30%</small></button>
+        <button class="optbtn" data-subj="MIX">🎲 Mixed<small>All three subjects</small></button>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>2 · Number of items</h3>
+      <div class="optrow" id="numrow">
+        <button class="optbtn sel" data-n="5">5 items<small>Quick drill</small></button>
+        <button class="optbtn" data-n="10">10 items<small>Full set</small></button>
+        <button class="optbtn" data-n="mock">🎯 Random Mock Set<small>75 items (PSAD/MSTE) · 50 (HGE) · board format</small></button>
+        <button class="optbtn" data-n="past">🗂 Past Boards<small>Actual items from a specific exam</small></button>
+      </div>
+      <div id="yearrow" class="optrow" style="margin-top:10px;display:none;"></div>
+      <div id="numnote" class="pacenote" style="display:none;text-align:left;"></div>
+    </div>
+    <div class="panel">
+      <h3>3 · Mode</h3>
+      <div class="optrow" id="moderow">
+        <button class="optbtn sel" data-mode="practice">📖 Practice<small>Solution shown after each answer</small></button>
+        <button class="optbtn" data-mode="exam">⏱ Exam<small>Solutions revealed at the end</small></button>
+      </div>
+    </div>
+    <button class="go" onclick="startQuiz()">START TIMED QUIZ ▸</button>
+    <div class="pacenote">⏱ Board pacing applied — PSAD: <b>4.8 min/item</b> (75 items ÷ 6 hrs) · MSTE: <b>4.0</b> (75 ÷ 5 hrs) · HGE: <b>4.8</b> (50 ÷ 4 hrs). Timer counts DOWN; the quiz auto-submits at 00:00.</div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="scr-quiz" class="screen">
+    <div class="qbar"><span id="qcount">Item 1 of 5</span><span class="timer" id="timer">00:00</span></div>
+    <div class="prog"><div id="progfill"></div></div>
+    <div id="qbanner" style="display:none;" class="pacenote"></div>
+    <div class="qcard">
+      <span class="subjchip" id="qsubj">PSAD</span>
+      <div class="qtext" id="qtext"></div>
+      <div class="choices" id="choices"></div>
+      <div class="verdict" id="verdict"></div>
+      <div class="sol" id="solbox"></div>
+      <button class="nextbtn" id="nextbtn" onclick="nextQ()">NEXT ITEM ▸</button>
+    </div>
+    <div class="quizctrl">
+      <button class="ctrlbtn" onclick="pauseQuiz()">⏸ PAUSE</button>
+      <button class="ctrlbtn danger" onclick="cancelQuiz()">✕ CANCEL QUIZ</button>
+    </div>
+    <div id="pauseovl" class="pauseovl">
+      <div class="pausebox">
+        <div style="font-size:40px;">⏸</div>
+        <h3 style="font-family:'Sora';margin:8px 0 4px;">Quiz Paused</h3>
+        <p style="font-size:13px;color:#5A6780;">Timer stopped at <b id="pausetime">00:00</b></p>
+        <button class="go" style="margin-top:14px;" onclick="resumeQuiz()">▶ RESUME</button>
+        <button class="ghost" onclick="cancelQuiz()">✕ CANCEL QUIZ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="scr-result" class="screen">
+    <div class="panel" style="margin-top:18px;">
+      <div class="ring">
+        <svg width="150" height="150"><circle cx="75" cy="75" r="64" stroke="#E1E7F2" stroke-width="13" fill="none"/><circle id="ringfg" cx="75" cy="75" r="64" stroke="#2E9E52" stroke-width="13" fill="none" stroke-linecap="round" stroke-dasharray="402" stroke-dashoffset="402"/></svg>
+        <div class="pct"><span id="pctnum">0%</span><small>SCORE</small></div>
+      </div>
+      <div class="passline">Board passing standard: <b>70%</b></div>
+      <span class="badge" id="passbadge">—</span>
+      <div class="statgrid">
+        <div class="stat"><b id="st-correct" style="color:var(--good)">0</b><span>CORRECT</span></div>
+        <div class="stat"><b id="st-wrong" style="color:var(--bad)">0</b><span>WRONG</span></div>
+        <div class="stat"><b id="st-time">0:00</b><span>TIME</span></div>
+      </div>
+    </div>
+    <div id="reviewlist"></div>
+    <div class="btnrow">
+      <button class="ghost" style="margin-top:16px;" onclick="showScreen('scr-start')">◂ BACK TO QUIZ</button>
+      <button class="go" onclick="goHome()">🏠 HOME</button>
+    </div>
+  </div>
+
+</div>
+<script>
+/* ---------- helpers for math markup ---------- */
+function fr(t,b){return '<span class="frac"><span class="top">'+t+'</span><span class="bot">'+b+'</span></span>';}
+function fx(s){return '<span class="fx">'+s+'</span>';}
+function step(n,txt){return '<div class="step"><span class="n">'+n+'</span><div>'+txt+'</div></div>';}
+function ans(s){return '<div class="step"><span class="n">✓</span><div><span class="ans">'+s+'</span></div></div>';}
+function dia(svg,cap){return '<div class="diagram">'+svg+'<div class="dcap">'+cap+'</div></div>';}
+
+/* ---------- SVG diagrams ---------- */
+var svgBeam='<svg viewBox="0 0 320 120" width="300"><line x1="30" y1="70" x2="290" y2="70" stroke="#17223B" stroke-width="5"/><polygon points="30,70 20,90 40,90" fill="#2F4BD0"/><circle cx="290" cy="80" r="9" fill="none" stroke="#2F4BD0" stroke-width="3"/><line x1="278" y1="90" x2="302" y2="90" stroke="#2F4BD0" stroke-width="3"/><line x1="160" y1="20" x2="160" y2="63" stroke="#D14040" stroke-width="3" marker-end="none"/><polygon points="160,68 153,54 167,54" fill="#D14040"/><text x="168" y="30" font-size="14" fill="#D14040" font-weight="bold">P = 40 kN</text><text x="85" y="105" font-size="12" fill="#5A6780">L/2 = 3 m</text><text x="215" y="105" font-size="12" fill="#5A6780">L/2 = 3 m</text><path d="M30 70 Q160 100 290 70" stroke="#0E8F8F" stroke-width="2" fill="none" stroke-dasharray="5,4"/><text x="150" y="95" font-size="11" fill="#0E8F8F">δmax</text></svg>';
+var svgPunch='<svg viewBox="0 0 320 200" width="280"><rect x="40" y="20" width="240" height="160" fill="#F3E8DB" stroke="#8C5A2B" stroke-width="2"/><rect x="122" y="72" width="76" height="56" fill="#2F4BD0"/><rect x="88" y="38" width="144" height="124" fill="none" stroke="#D14040" stroke-width="3" stroke-dasharray="7,5"/><text x="130" y="105" font-size="12" fill="#fff" font-weight="bold">450×450</text><line x1="198" y1="100" x2="232" y2="100" stroke="#D14040" stroke-width="2"/><text x="205" y="94" font-size="12" fill="#D14040" font-weight="bold">d/2</text><text x="95" y="32" font-size="12" fill="#D14040" font-weight="bold">critical perimeter b₀</text></svg>';
+var svgCurve='<svg viewBox="0 0 320 170" width="300"><path d="M40 140 Q160 30 280 140" stroke="#E08A00" stroke-width="4" fill="none"/><line x1="40" y1="140" x2="160" y2="30" stroke="#5A6780" stroke-width="2" stroke-dasharray="6,4"/><line x1="280" y1="140" x2="160" y2="30" stroke="#5A6780" stroke-width="2" stroke-dasharray="6,4"/><circle cx="40" cy="140" r="5" fill="#8A5400"/><circle cx="280" cy="140" r="5" fill="#8A5400"/><circle cx="160" cy="30" r="5" fill="#D14040"/><text x="18" y="158" font-size="13" fill="#8A5400" font-weight="bold">PC</text><text x="285" y="158" font-size="13" fill="#8A5400" font-weight="bold">PT</text><text x="150" y="20" font-size="13" fill="#D14040" font-weight="bold">PI</text><text x="80" y="72" font-size="13" fill="#5A6780">T</text><text x="228" y="72" font-size="13" fill="#5A6780">T</text><text x="150" y="125" font-size="13" fill="#E08A00" font-weight="bold">I = 40°</text></svg>';
+var svgVC='<svg viewBox="0 0 320 150" width="300"><path d="M20 120 Q160 20 300 90" stroke="#E08A00" stroke-width="4" fill="none"/><line x1="20" y1="120" x2="150" y2="42" stroke="#5A6780" stroke-width="2" stroke-dasharray="5,4"/><line x1="170" y1="42" x2="300" y2="90" stroke="#5A6780" stroke-width="2" stroke-dasharray="5,4"/><circle cx="176" cy="55" r="5" fill="#D14040"/><line x1="176" y1="55" x2="176" y2="135" stroke="#D14040" stroke-width="1.5" stroke-dasharray="4,3"/><text x="30" y="95" font-size="13" fill="#5A6780">g₁ = +3%</text><text x="230" y="60" font-size="13" fill="#5A6780">g₂ = −2%</text><text x="150" y="40" font-size="12" fill="#D14040" font-weight="bold">highest pt</text><text x="88" y="145" font-size="12" fill="#D14040">x from PC = ?</text><text x="6" y="132" font-size="12" fill="#8A5400" font-weight="bold">PC</text></svg>';
+var svgShip='<svg viewBox="0 0 320 200" width="260"><circle cx="160" cy="110" r="6" fill="#8A5400"/><text x="145" y="132" font-size="12" fill="#8A5400" font-weight="bold">Port</text><line x1="160" y1="110" x2="205" y2="18" stroke="#2F4BD0" stroke-width="3"/><polygon points="205,18 195,30 208,32" fill="#2F4BD0"/><line x1="160" y1="110" x2="265" y2="155" stroke="#0E8F8F" stroke-width="3"/><polygon points="265,155 250,152 257,141" fill="#0E8F8F"/><line x1="205" y1="18" x2="265" y2="155" stroke="#D14040" stroke-width="2.5" stroke-dasharray="6,4"/><line x1="160" y1="40" x2="160" y2="110" stroke="#5A6780" stroke-width="1.5" stroke-dasharray="3,3"/><text x="150" y="32" font-size="12" fill="#5A6780">N</text><text x="200" y="55" font-size="12" fill="#2F4BD0" font-weight="bold">11 mi (N23°E)</text><text x="165" y="165" font-size="12" fill="#0E8F8F" font-weight="bold">15 mi (S67°E)</text><text x="245" y="85" font-size="13" fill="#D14040" font-weight="bold">d = ?</text><path d="M172 96 L184 102 L178 112" fill="none" stroke="#D14040" stroke-width="2"/><text x="185" y="98" font-size="11" fill="#D14040">90°</text></svg>';
+var svgElev='<svg viewBox="0 0 320 180" width="240"><rect x="90" y="15" width="140" height="150" fill="none" stroke="#5A6780" stroke-width="3" rx="8"/><line x1="160" y1="0" x2="160" y2="15" stroke="#5A6780" stroke-width="3"/><rect x="135" y="80" width="50" height="65" fill="none" stroke="#17223B" stroke-width="3"/><rect x="138" y="95" width="44" height="47" fill="#BFE5F5"/><text x="192" y="115" font-size="12" fill="#0E8F8F" font-weight="bold">h = 0.30 m</text><line x1="255" y1="120" x2="255" y2="60" stroke="#D14040" stroke-width="3"/><polygon points="255,52 247,66 263,66" fill="#D14040"/><text x="240" y="42" font-size="13" fill="#D14040" font-weight="bold">a = 3 m/s²</text><circle cx="160" cy="152" r="5" fill="#D14040"/><text x="112" y="175" font-size="12" fill="#D14040" font-weight="bold">p bottom = ?</text></svg>';
+var svgClay='<svg viewBox="0 0 320 180" width="300"><rect x="20" y="30" width="280" height="45" fill="#F3E8DB" stroke="#8C5A2B"/><rect x="20" y="75" width="280" height="70" fill="#C9B08A" stroke="#8C5A2B"/><rect x="20" y="145" width="280" height="25" fill="#9AA7B8"/><line x1="60" y1="8" x2="60" y2="26" stroke="#D14040" stroke-width="3"/><polygon points="60,30 53,18 67,18" fill="#D14040"/><line x1="160" y1="8" x2="160" y2="26" stroke="#D14040" stroke-width="3"/><polygon points="160,30 153,18 167,18" fill="#D14040"/><line x1="260" y1="8" x2="260" y2="26" stroke="#D14040" stroke-width="3"/><polygon points="260,30 253,18 267,18" fill="#D14040"/><text x="118" y="58" font-size="12" fill="#6E4520">sand · p₀ = 180 kPa</text><text x="70" y="105" font-size="13" fill="#4a2f14" font-weight="bold">CLAY · H = 10 m · e₀ = 1.5</text><text x="92" y="122" font-size="12" fill="#4a2f14">Cc = 0.315 · Δp = 120 kPa</text><text x="120" y="163" font-size="12" fill="#fff">incompressible</text></svg>';
+var svgJet='<svg viewBox="0 0 320 140" width="290"><rect x="20" y="55" width="55" height="30" fill="#9AA7B8" rx="4"/><path d="M75 62 L215 62 L215 78 L75 78 Z" fill="#7FD4E8"/><polygon points="215,55 235,70 215,85" fill="#7FD4E8"/><rect x="238" y="20" width="12" height="100" fill="#17223B"/><text x="95" y="50" font-size="13" fill="#0E8F8F" font-weight="bold">V = 25 m/s · d = 75 mm</text><line x1="252" y1="70" x2="290" y2="70" stroke="#D14040" stroke-width="3"/><polygon points="296,70 284,63 284,77" fill="#D14040"/><text x="262" y="58" font-size="13" fill="#D14040" font-weight="bold">F = ?</text><path d="M238 20 Q225 10 215 12" stroke="#7FD4E8" stroke-width="6" fill="none"/><path d="M238 120 Q225 130 215 128" stroke="#7FD4E8" stroke-width="6" fill="none"/></svg>';
+var svgChan='<svg viewBox="0 0 320 150" width="280"><path d="M50 20 L50 120 L270 120 L270 20" fill="none" stroke="#17223B" stroke-width="4"/><rect x="52" y="65" width="216" height="53" fill="#7FD4E8" opacity=".8"/><text x="120" y="100" font-size="13" fill="#075E5E" font-weight="bold">d = 1.5 m</text><text x="128" y="140" font-size="13" fill="#5A6780">b = 6 m</text><text x="60" y="45" font-size="12" fill="#5A6780">n = 0.013 · S = 0.001</text></svg>';
+var svgWall='<svg viewBox="0 0 320 170" width="280"><rect x="60" y="15" width="22" height="135" fill="#9AA7B8" stroke="#5A6780"/><rect x="82" y="15" width="200" height="135" fill="#F3E8DB"/><polygon points="82,15 82,150 190,150" fill="#E08A00" opacity=".45"/><line x1="82" y1="15" x2="82" y2="150" stroke="#8C5A2B" stroke-width="2"/><text x="150" y="60" font-size="13" fill="#6E4520" font-weight="bold">φ = 30° · γ = 18 kN/m³</text><text x="98" y="142" font-size="13" fill="#B25E00" font-weight="bold">Kₐγ H</text><line x1="200" y1="105" x2="140" y2="105" stroke="#D14040" stroke-width="3"/><polygon points="132,105 146,98 146,112" fill="#D14040"/><text x="205" y="110" font-size="13" fill="#D14040" font-weight="bold">Pₐ @ H/3</text><text x="30" y="90" font-size="13" fill="#17223B" font-weight="bold">H=6m</text></svg>';
+var svgPhase='<svg viewBox="0 0 320 170" width="250"><rect x="90" y="15" width="140" height="45" fill="#DFF3F1" stroke="#0E8F8F" stroke-width="2"/><rect x="90" y="60" width="140" height="35" fill="#7FD4E8" stroke="#0E8F8F" stroke-width="2"/><rect x="90" y="95" width="140" height="60" fill="#C9B08A" stroke="#8C5A2B" stroke-width="2"/><text x="132" y="43" font-size="13" fill="#075E5E" font-weight="bold">AIR</text><text x="122" y="82" font-size="13" fill="#0B3F5E" font-weight="bold">WATER</text><text x="122" y="130" font-size="13" fill="#4a2f14" font-weight="bold">SOLIDS</text><text x="238" y="60" font-size="12" fill="#5A6780">Vv → e</text><text x="238" y="130" font-size="12" fill="#5A6780">Vs = 1</text><text x="18" y="82" font-size="12" fill="#0E8F8F" font-weight="bold">S·e = wG</text></svg>';
+
+/* ---------- QUESTION BANK ---------- */
+var BANK=[
+/* ================= PSAD ================= */
+{s:'PSAD',q:'A simply supported beam, 6 m long, carries a concentrated load of 40 kN at midspan. E = 200 GPa, I = 120×10⁶ mm⁴. Evaluate the maximum deflection.',
+ c:['7.5 mm','3.75 mm','15.0 mm','11.25 mm'],a:0,
+ sol:dia(svgBeam,'SS beam, point load at midspan — deflection is at the center')
+ +step(1,'Midspan point load on a simple span uses: '+fx('δ = '+fr('PL³','48EI')))
+ +step(2,'Consistent units (N, mm): P = 40 000 N, L = 6000 mm '+fx('δ = '+fr('40 000 × 6000³','48 × 200 000 × 120×10⁶')))
+ +step(3,'Numerator = 8.64×10¹⁵ · Denominator = 1.152×10¹⁵')
+ +ans('δ = 7.5 mm')},
+{s:'PSAD',q:'A rectangular beam has b = 300 mm, d = 500 mm, with 3–25 mm ø bars (As = 1473 mm²). f′c = 28 MPa, fy = 415 MPa. Evaluate the design moment capacity φMn (tension-controlled).',
+ c:['251 kN·m','279 kN·m','225 kN·m','302 kN·m'],a:0,
+ sol:step(1,'Depth of stress block: '+fx('a = '+fr('A<sub>s</sub>f<sub>y</sub>','0.85f′<sub>c</sub>b')+' = '+fr('1473 × 415','0.85 × 28 × 300')+' = 85.6 mm'))
+ +step(2,'Nominal moment: '+fx('M<sub>n</sub> = A<sub>s</sub>f<sub>y</sub>(d − a/2)')+' = 611 295(500 − 42.8) = 279.4 kN·m')
+ +step(3,'Tension-controlled → φ = 0.90: φM<sub>n</sub> = 0.90 × 279.4')
+ +ans('φMn ≈ 251 kN·m')},
+{s:'PSAD',q:'A solid circular shaft 100 mm in diameter transmits a torque of 15 kN·m. Evaluate the maximum shearing stress.',
+ c:['76.4 MPa','38.2 MPa','152.8 MPa','61.1 MPa'],a:0,
+ sol:step(1,'For a solid shaft the torsion formula reduces to: '+fx('τ = '+fr('16T','πd³')))
+ +step(2,fx('τ = '+fr('16 × 15×10⁶','π × 100³')+' = '+fr('240×10⁶','3.1416×10⁶')))
+ +ans('τ = 76.4 MPa')},
+{s:'PSAD',q:'A 3 m steel column is pinned at both ends. E = 200 GPa, I = 15×10⁶ mm⁴. Evaluate the Euler critical buckling load.',
+ c:['3290 kN','822 kN','6580 kN','1645 kN'],a:0,
+ sol:step(1,'Pinned–pinned → effective length factor '+fx('K = 1.0'))
+ +step(2,fx('P<sub>cr</sub> = '+fr('π²EI','(KL)²')+' = '+fr('π² × 200 000 × 15×10⁶','(3000)²')))
+ +step(3,'= 9.8696 × 333 333 N = 3.29×10⁶ N')
+ +ans('Pcr ≈ 3290 kN')},
+{s:'PSAD',q:'Per NSCP 2015, evaluate the minimum flexural steel ratio ρmin for a beam with fy = 415 MPa and f′c = 28 MPa.',
+ c:['0.00337','0.00319','0.00509','0.00280'],a:0,
+ sol:step(1,'NSCP gives two expressions — take the LARGER: '+fx('ρ<sub>min</sub> = '+fr('1.4','f<sub>y</sub>')+' or '+fr('0.25√f′<sub>c</sub>','f<sub>y</sub>')))
+ +step(2,'1.4/415 = <b>0.00337</b> &nbsp;·&nbsp; 0.25√28/415 = 1.323/415 = 0.00319')
+ +ans('ρmin = 0.00337 (matches the Nov 2019 board solution)')},
+{s:'PSAD',q:'A square footing supports a 450 mm × 450 mm column. Effective depth d = 400 mm. Evaluate the critical perimeter b₀ for punching (two-way) shear.',
+ c:['3400 mm','1800 mm','2600 mm','3600 mm'],a:0,
+ sol:dia(svgPunch,'Punching failure surface at d/2 from each column face')
+ +step(1,'The critical section sits at '+fx('d/2 = 200 mm')+' from every face of the column')
+ +step(2,'Each side of the perimeter = 450 + 2(200) = 450 + d = 850 mm')
+ +step(3,fx('b₀ = 4(c + d) = 4(450 + 400)'))
+ +ans('b₀ = 3400 mm')},
+{s:'PSAD',q:'A W-shape beam has Zx = 1280×10³ mm³ and Fy = 248 MPa. It is compact and fully laterally braced. Evaluate the design flexural strength φbMn (LRFD).',
+ c:['285.7 kN·m','317.4 kN·m','257.0 kN·m','234.9 kN·m'],a:0,
+ sol:step(1,'Fully braced compact section reaches the plastic moment: '+fx('M<sub>p</sub> = F<sub>y</sub>Z<sub>x</sub>'))
+ +step(2,'M<sub>p</sub> = 248 × 1280×10³ = 317.4×10⁶ N·mm = 317.4 kN·m')
+ +step(3,'Apply φ<sub>b</sub> = 0.90: 0.90 × 317.4')
+ +ans('φbMn ≈ 285.7 kN·m')},
+{s:'PSAD',q:'A 250 mm × 500 mm prestressed beam carries prestress P = 800 kN at e = 100 mm below the centroid, plus a service moment M = 120 kN·m. Evaluate the resulting stress at the BOTTOM fiber.',
+ c:['2.56 MPa compression','2.56 MPa tension','10.24 MPa compression','25.6 MPa compression'],a:0,
+ sol:step(1,'Section properties: A = 250×500 = 125 000 mm² · S = bh²/6 = 10.42×10⁶ mm³')
+ +step(2,'Three stresses superpose at the bottom fiber: '+fx('f = −'+fr('P','A')+' − '+fr('Pe','S')+' + '+fr('M','S')))
+ +step(3,'= −6.40 − 7.68 + 11.52 MPa (axial + eccentricity both compress the bottom; load moment relieves it)')
+ +ans('f = −2.56 MPa → 2.56 MPa compression')},
+/* ================= MSTE ================= */
+{s:'MSTE',q:'₱50,000 is invested at 8% compounded quarterly. Evaluate the accumulated amount after 5 years.',
+ c:['₱74,297','₱73,466','₱76,244','₱68,024'],a:0,
+ sol:step(1,'Quarterly: i = 8%/4 = 2% per period, n = 5×4 = 20 periods')
+ +step(2,fx('F = P(1+i)ⁿ = 50 000(1.02)²⁰'))
+ +step(3,'(1.02)²⁰ = 1.48595')
+ +ans('F ≈ ₱74,297 · (₱73,466 is the trap if compounded annually)')},
+{s:'MSTE',q:'A simple curve has an intersection angle I = 40° and radius R = 200 m. Evaluate the tangent distance T.',
+ c:['72.8 m','139.6 m','68.4 m','84.9 m'],a:0,
+ sol:dia(svgCurve,'Simple curve: tangents meet at PI; T runs from PC (or PT) to PI')
+ +step(1,fx('T = R tan(I/2) = 200 tan 20°'))
+ +step(2,'tan 20° = 0.36397')
+ +ans('T = 72.8 m · (139.6 m is the length of curve Lc = πRI/180 — a classic distractor)')},
+{s:'MSTE',q:'A summit parabolic curve is 100 m long with g₁ = +3% and g₂ = −2%. How far from the PC is the highest point of the curve?',
+ c:['60 m','40 m','50 m','66.7 m'],a:0,
+ sol:dia(svgVC,'Summit curve — highest point where the grade momentarily becomes zero')
+ +step(1,'The slope of the parabola is zero at the peak: '+fx('x = '+fr('g₁L','g₁ − g₂')))
+ +step(2,fx('x = '+fr('3(100)','3 − (−2)')+' = '+fr('300','5')))
+ +ans('x = 60 m from PC')},
+{s:'MSTE',q:'Two fair dice are rolled once. Evaluate the probability that the sum of the faces is 7.',
+ c:['1/6','1/12','5/36','7/36'],a:0,
+ sol:step(1,'Total outcomes = 6 × 6 = 36')
+ +step(2,'Favorable pairs: (1,6)(2,5)(3,4)(4,3)(5,2)(6,1) → 6 ways')
+ +step(3,fx('P = 6/36'))
+ +ans('P = 1/6')},
+{s:'MSTE',q:'A PERT activity has optimistic time a = 4 days, most likely m = 6 days, and pessimistic b = 10 days. Evaluate the expected time.',
+ c:['6.33 days','6.00 days','6.67 days','7.00 days'],a:0,
+ sol:step(1,'PERT uses the beta-distribution weighted mean: '+fx('t<sub>e</sub> = '+fr('a + 4m + b','6')))
+ +step(2,fx('t<sub>e</sub> = '+fr('4 + 24 + 10','6')+' = '+fr('38','6')))
+ +ans('te = 6.33 days · (σ = (b−a)/6 = 1 day)')},
+{s:'MSTE',q:'A car travels at 80 kph on a level road. Perception–reaction time is 2.5 s and coefficient of friction f = 0.35. Evaluate the stopping sight distance.',
+ c:['127.5 m','71.9 m','55.6 m','142.3 m'],a:0,
+ sol:step(1,'Convert speed: v = 80/3.6 = 22.22 m/s')
+ +step(2,'Reaction distance: vt = 22.22 × 2.5 = 55.6 m')
+ +step(3,'Braking distance: '+fx(fr('v²','2gf')+' = '+fr('22.22²','2(9.81)(0.35)')+' = 71.9 m'))
+ +ans('SSD = 55.6 + 71.9 ≈ 127.5 m')},
+{s:'MSTE',q:'Two ships leave port simultaneously — one sails N 23° E at 11 mph, the other S 67° E at 15 mph. How far apart are they after one hour? (May 2022 board setting)',
+ c:['18.6 mi','26.0 mi','10.2 mi','20.6 mi'],a:0,
+ sol:dia(svgShip,'The two courses are perpendicular: 23° + 67° = 90°')
+ +step(1,'Angle between courses = 180° − 23° − 67° = 90° → right triangle!')
+ +step(2,'After 1 hr the legs are 11 mi and 15 mi: '+fx('d = √(11² + 15²) = √346'))
+ +ans('d ≈ 18.6 mi')},
+{s:'MSTE',q:'Equipment costs ₱1.2 M with a salvage value of ₱200,000 after 10 years. Using straight-line depreciation, evaluate the book value at the end of year 6.',
+ c:['₱600,000','₱500,000','₱700,000','₱480,000'],a:0,
+ sol:step(1,'Annual depreciation: '+fx('d = '+fr('C₀ − C<sub>n</sub>','n')+' = '+fr('1 200 000 − 200 000','10')+' = ₱100 000/yr'))
+ +step(2,'Book value: '+fx('BV₆ = C₀ − 6d = 1 200 000 − 600 000'))
+ +ans('BV = ₱600,000')},
+/* ================= HGE ================= */
+{s:'HGE',q:'A woman holds a glass of water 300 mm tall inside an elevator accelerating UPWARD at 3 m/s². Evaluate the pressure at the bottom of the glass. (Nov 2019 board)',
+ c:['3.84 kPa','2.94 kPa','2.04 kPa','4.72 kPa'],a:0,
+ sol:dia(svgElev,'Upward acceleration adds an inertia "boost" to gravity')
+ +step(1,'Vertical acceleration modifies hydrostatic pressure: '+fx('p = γh(1 + a/g)')+' — plus for upward, minus for downward')
+ +step(2,fx('p = 9.81(0.30)(1 + '+fr('3','9.81')+')')+' = 2.943 × 1.306')
+ +ans('p = 3.84 kPa · (2.94 kPa is the static-only trap)')},
+{s:'HGE',q:'A 10 m thick clay layer (e₀ = 1.5, Cc = 0.315) carries an initial intergranular pressure of 180 kPa, increased by 120 kPa. Evaluate the primary settlement. (May 2022 board)',
+ c:['0.28 m','0.18 m','0.36 m','0.24 m'],a:0,
+ sol:dia(svgClay,'Added surface load squeezes water out of the clay over time')
+ +step(1,fx('S = '+fr('C<sub>c</sub>H','1+e₀')+' log'+fr('p₀+Δp','p₀')))
+ +step(2,fx('S = '+fr('0.315 × 10','1 + 1.5')+' log'+fr('300','180'))+' = 1.26 × log(1.667)')
+ +step(3,'= 1.26 × 0.2218')
+ +ans('S ≈ 0.28 m')},
+{s:'HGE',q:'A 75 mm ø water jet moving at 25 m/s strikes a fixed flat plate normally. Evaluate the force exerted on the plate. (May 2022 board)',
+ c:['2.76 kN','1.38 kN','46.9 kN','5.52 kN'],a:0,
+ sol:dia(svgJet,'The plate destroys the jet\u2019s normal momentum; water sprays sideways')
+ +step(1,'Jet area: A = π/4(0.075)² = 4.418×10⁻³ m²')
+ +step(2,'Momentum flux fully stopped: '+fx('F = ρAV² = 1000 × 4.418×10⁻³ × 25²'))
+ +ans('F = 2761 N ≈ 2.76 kN · (46.9 kN is the trap of using d as the area)')},
+{s:'HGE',q:'A rectangular channel is 6 m wide and flows 1.5 m deep on a slope of 0.001 with n = 0.013. Evaluate the discharge (Manning).',
+ c:['21.9 m³/s','2.43 m³/s','16.4 m³/s','29.2 m³/s'],a:0,
+ sol:dia(svgChan,'Wetted perimeter counts the bed + two wet sides only')
+ +step(1,'A = 6(1.5) = 9 m² · P = 6 + 2(1.5) = 9 m → '+fx('R = A/P = 1.0 m'))
+ +step(2,fx('V = '+fr('1','n')+'R<sup>2/3</sup>S<sup>1/2</sup> = '+fr('1','0.013')+'(1)(0.0316)')+' = 2.43 m/s')
+ +step(3,'Q = AV = 9 × 2.43')
+ +ans('Q ≈ 21.9 m³/s')},
+{s:'HGE',q:'A ship displacing 24,000 metric tons drafts 10.5 m in seawater (γ = 10.1 kN/m³). Its waterline area is 3000 m². Evaluate the required depth to float in fresh water (γ = 9.81 kN/m³). (Nov 2019 board)',
+ c:['10.73 m','10.50 m','10.27 m','11.00 m'],a:0,
+ sol:step(1,'Weight: W = 24 000 000 kg × 9.81 = 235 440 kN — buoyancy must equal this everywhere')
+ +step(2,'Displaced volumes: sea V = 235 440/10.1 = 23 311 m³ · fresh V = 235 440/9.81 = 24 000 m³')
+ +step(3,'Extra volume needed = 689 m³, spread over 3000 m² of waterline: Δd = 689/3000 = 0.23 m')
+ +ans('Draft = 10.5 + 0.23 ≈ 10.73 m — ships sink deeper in fresh water!')},
+{s:'HGE',q:'A suppressed rectangular weir (Francis) is 2 m long with a head of 0.30 m. Evaluate the discharge.',
+ c:['0.605 m³/s','0.552 m³/s','0.662 m³/s','0.302 m³/s'],a:0,
+ sol:step(1,'Francis (SI, suppressed): '+fx('Q = 1.84LH<sup>3/2</sup>'))
+ +step(2,'H<sup>3/2</sup> = 0.30<sup>1.5</sup> = 0.1643')
+ +step(3,'Q = 1.84 × 2 × 0.1643')
+ +ans('Q ≈ 0.605 m³/s')},
+{s:'HGE',q:'A smooth vertical wall retains a 6 m dry sand backfill (φ = 30°, γ = 18 kN/m³, level surface). Evaluate the Rankine active thrust per meter of wall.',
+ c:['108 kN/m','324 kN/m','54 kN/m','216 kN/m'],a:0,
+ sol:dia(svgWall,'Active pressure grows linearly with depth — a triangle acting at H/3')
+ +step(1,fx('K<sub>a</sub> = '+fr('1 − sin 30°','1 + sin 30°')+' = '+fr('0.5','1.5')+' = 1/3'))
+ +step(2,fx('P<sub>a</sub> = ½K<sub>a</sub>γH² = ½ × ⅓ × 18 × 6²'))
+ +ans('Pa = 108 kN/m, acting 2 m above the base')},
+{s:'HGE',q:'A soil sample has moist unit weight γ = 19 kN/m³, water content w = 15%, and G = 2.70. Evaluate the degree of saturation.',
+ c:['67%','45%','75%','82%'],a:0,
+ sol:dia(svgPhase,'Three-phase diagram: the bridge between phases is Se = wG')
+ +step(1,'Dry unit weight first: '+fx('γ<sub>d</sub> = '+fr('γ','1+w')+' = '+fr('19','1.15')+' = 16.52 kN/m³'))
+ +step(2,'Void ratio: '+fx('e = '+fr('Gγ<sub>w</sub>','γ<sub>d</sub>')+' − 1 = '+fr('2.70(9.81)','16.52')+' − 1 = 0.603'))
+ +step(3,'The master key: '+fx('Se = wG')+' → S = 0.15(2.70)/0.603')
+ +ans('S ≈ 0.67 = 67%')}
+];
+</script>
+<script>
+/* ---------- APP LOGIC ---------- */
+var cfg={subj:'PSAD',n:'5',mode:'practice',year:null};
+var quiz=[],idx=0,picks=[],score=0,t0=0,tick=null,answered=false,totalTime=0,timeLeft=0,pausedAt=0;
+var SUBJCOLORS={PSAD:'#2F4BD0',MSTE:'#E08A00',HGE:'#0E8F8F'};
+/* board pacing (min/item): PSAD 75 items/6 h · MSTE 75/5 h · HGE 50 items/4 h */
+var PACE={PSAD:4.8, MSTE:4.0, HGE:4.8, MIX:4.5};
+
+function selRow(rowId,btn){var row=document.getElementById(rowId);row.querySelectorAll('.optbtn').forEach(function(x){x.classList.remove('sel');});btn.classList.add('sel');}
+document.getElementById('subjrow').addEventListener('click',function(ev){
+  var b=ev.target.closest('.optbtn'); if(!b)return;
+  selRow('subjrow',b); cfg.subj=b.dataset.subj;
+});
+document.getElementById('numrow').addEventListener('click',function(ev){
+  var b=ev.target.closest('.optbtn'); if(!b)return;
+  selRow('numrow',b); cfg.n=b.dataset.n;
+  var isSet = cfg.n==='mock'||cfg.n==='past';
+  /* mock & past-board sets are full preboard simulations → exam mode only */
+  var pBtn=document.querySelector('#moderow [data-mode="practice"]'),
+      eBtn=document.querySelector('#moderow [data-mode="exam"]');
+  if(isSet){pBtn.classList.add('dis');pBtn.classList.remove('sel');eBtn.classList.add('sel');cfg.mode='exam';}
+  else{pBtn.classList.remove('dis');}
+  document.getElementById('yearrow').style.display = cfg.n==='past'?'grid':'none';
+  if(cfg.n==='past')buildYearRow();
+  var note=document.getElementById('numnote');
+  if(cfg.n==='mock'){note.style.display='block';note.innerHTML='🎯 Mirrors the actual board: <b>75 items</b> for PSAD &amp; MSTE, <b>50 items</b> for HGE, at official pacing. Items mix the 2019–2025 bank with freshly generated number-randomized variants — no two mock sets are alike.';}
+  else if(cfg.n==='past'){note.style.display='block';note.innerHTML='🗂 Select an exam below — the quiz will contain only items sourced from that board exam.';}
+  else note.style.display='none';
+});
+document.getElementById('moderow').addEventListener('click',function(ev){
+  var b=ev.target.closest('.optbtn'); if(!b||b.classList.contains('dis'))return;
+  selRow('moderow',b); cfg.mode=b.dataset.mode;
+});
+function buildYearRow(){
+  var years=[]; BANK.forEach(function(q){if(q.y&&years.indexOf(q.y)<0)years.push(q.y);});
+  years.sort();
+  var row=document.getElementById('yearrow'); row.innerHTML='';
+  years.forEach(function(y,i){
+    var count=BANK.filter(function(q){return q.y===y;}).length;
+    var b=document.createElement('button');
+    b.className='optbtn'+(i===0?' sel':''); b.dataset.year=y;
+    b.innerHTML='📄 '+y+'<small>'+count+' items in bank</small>';
+    b.onclick=function(){selRow('yearrow',b);cfg.year=y;};
+    row.appendChild(b);
+  });
+  cfg.year=years[0]||null;
+}
+
+function shuffle(arr){for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=arr[i];arr[i]=arr[j];arr[j]=t;}return arr;}
+function showScreen(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');});document.getElementById(id).classList.add('on');window.scrollTo(0,0);}
+function fmt(sec){var m=Math.floor(sec/60),s=sec%60;return (m<10?'0':'')+m+':'+(s<10?'0':'')+s;}
+
+function startQuiz(){
+  var pool, target, bannerMsg='';
+  if(cfg.n==='past'){
+    if(!cfg.year){alert('Select a past board exam first.');return;}
+    pool=BANK.filter(function(q){return q.y===cfg.year;});
+    target=pool.length;
+    bannerMsg='🗂 '+cfg.year+' board set — '+pool.length+' item(s) currently in the bank from this exam.';
+  }else{
+    pool = cfg.subj==='MIX' ? BANK.slice() : BANK.filter(function(q){return q.s===cfg.subj;});
+    if(cfg.n==='mock'){
+      target = cfg.subj==='HGE' ? 50 : 75;
+      var fromBank=Math.min(pool.length,target);
+      pool=buildMockPool(pool,target);
+      bannerMsg='🎯 Full board simulation: '+target+' items — '+fromBank+' from the 2019–2025 bank + '+Math.max(0,target-fromBank)+' freshly generated variants, at official pacing.';
+    }else{
+      target=parseInt(cfg.n);
+    }
+  }
+  if(!pool.length){alert('No items available for this selection yet.');return;}
+  quiz = shuffle(pool.slice()).slice(0, Math.min(target, pool.length));
+  quiz = quiz.map(function(q){
+    var order = shuffle([0,1,2,3]);
+    return {s:q.s, q:q.q, sol:q.sol, t:q.t, y:q.y,
+      c: order.map(function(i){return q.c[i];}),
+      a: order.indexOf(q.a)};
+  });
+  idx=0; picks=[]; score=0; answered=false;
+  var paceKey = (cfg.n==='past'||cfg.subj==='MIX') ? 'MIX' : cfg.subj;
+  totalTime=Math.round(quiz.length*PACE[paceKey]*60);
+  timeLeft=totalTime; t0=Date.now();
+  var ban=document.getElementById('qbanner');
+  if(bannerMsg){ban.style.display='block';ban.textContent=bannerMsg;}else ban.style.display='none';
+  clearInterval(tick);
+  var tEl=document.getElementById('timer');
+  tEl.classList.remove('warn'); tEl.textContent='⏳ '+fmt(timeLeft);
+  tick=setInterval(function(){
+    timeLeft=totalTime-Math.floor((Date.now()-t0)/1000);
+    if(timeLeft<=0){tEl.textContent='⏳ 00:00';finish();return;}
+    tEl.textContent='⏳ '+fmt(timeLeft);
+    if(timeLeft<=Math.max(30,totalTime*0.15))tEl.classList.add('warn');
+  },500);
+  showScreen('scr-quiz'); renderQ();
+}
+
+/* ---- pause / cancel ---- */
+function pauseQuiz(){
+  clearInterval(tick); pausedAt=Date.now();
+  document.getElementById('pausetime').textContent=fmt(Math.max(0,timeLeft));
+  document.getElementById('pauseovl').classList.add('on');
+}
+function resumeQuiz(){
+  t0 += (Date.now()-pausedAt); /* shift start so elapsed time excludes the pause */
+  document.getElementById('pauseovl').classList.remove('on');
+  var tEl=document.getElementById('timer');
+  tick=setInterval(function(){
+    timeLeft=totalTime-Math.floor((Date.now()-t0)/1000);
+    if(timeLeft<=0){tEl.textContent='⏳ 00:00';finish();return;}
+    tEl.textContent='⏳ '+fmt(timeLeft);
+    if(timeLeft<=Math.max(30,totalTime*0.15))tEl.classList.add('warn');
+  },500);
+}
+function cancelQuiz(){
+  if(!confirm('Cancel this quiz? Progress will not be recorded.'))return;
+  clearInterval(tick);
+  document.getElementById('pauseovl').classList.remove('on');
+  goHome();
+}
+
+function renderQ(){
+  var q=quiz[idx]; answered=false;
+  document.getElementById('qcount').textContent='Item '+(idx+1)+' of '+quiz.length;
+  document.getElementById('progfill').style.width=(idx/quiz.length*100)+'%';
+  var chip=document.getElementById('qsubj');
+  chip.textContent=q.s; chip.style.background=SUBJCOLORS[q.s];
+  document.getElementById('qtext').innerHTML=q.q;
+  var box=document.getElementById('choices'); box.innerHTML='';
+  var letters=['A','B','C','D'];
+  q.c.forEach(function(txt,i){
+    var b=document.createElement('button');
+    b.className='choice';
+    b.innerHTML='<span class="lbl">'+letters[i]+'</span><span>'+txt+'</span>';
+    b.onclick=function(){pick(i,b);};
+    box.appendChild(b);
+  });
+  document.getElementById('verdict').className='verdict';
+  document.getElementById('solbox').style.display='none';
+  document.getElementById('nextbtn').style.display='none';
+}
+
+function pick(i,btn){
+  if(answered)return; answered=true;
+  var q=quiz[idx]; picks[idx]=i;
+  var btns=document.querySelectorAll('#choices .choice');
+  btns.forEach(function(b){b.disabled=true;});
+  var v=document.getElementById('verdict');
+  if(i===q.a){score++;}
+  if(cfg.mode==='practice'){
+    btns[q.a].classList.add('correct');
+    if(i!==q.a)btn.classList.add('wrong');
+    v.className='verdict '+(i===q.a?'good':'bad');
+    v.textContent = i===q.a ? '✓ Correct! Review the solution below.' : '✗ Not quite — walk through the solution:';
+    var sb=document.getElementById('solbox');
+    sb.innerHTML='<h4>📘 Step-by-Step Solution</h4>'+q.sol;
+    sb.style.display='block';
+  }else{
+    btn.classList.add('picked');
+  }
+  var nb=document.getElementById('nextbtn');
+  nb.textContent = idx===quiz.length-1 ? 'FINISH & VIEW RESULTS ▸' : 'NEXT ITEM ▸';
+  nb.style.display='block';
+}
+
+function nextQ(){
+  if(idx<quiz.length-1){idx++;renderQ();}
+  else finish();
+}
+
+function finish(){
+  clearInterval(tick);
+  document.getElementById('pauseovl').classList.remove('on');
+  var secs=Math.min(Math.floor((Date.now()-t0)/1000),totalTime);
+  var pct=Math.round(score/quiz.length*100);
+  /* record history for the user profile & recommendations */
+  saveResult({
+    d:Date.now(), subj:cfg.subj, setType:cfg.n, year:cfg.year, mode:cfg.mode,
+    n:quiz.length, score:score, pct:pct, secs:secs, allot:totalTime,
+    items:quiz.map(function(q,i){return {s:q.s,t:q.t,ok:picks[i]===q.a};})
+  });
+  showScreen('scr-result');
+  document.getElementById('pctnum').textContent=pct+'%';
+  document.getElementById('st-correct').textContent=score;
+  document.getElementById('st-wrong').textContent=quiz.length-score;
+  document.getElementById('st-time').innerHTML=fmt(secs)+'<span style="font-size:11px;color:#5A6780;font-weight:600;"> / '+fmt(totalTime)+'</span>';
+  var ring=document.getElementById('ringfg');
+  ring.style.stroke = pct>=70 ? '#2E9E52' : '#D14040';
+  ring.style.transition='stroke-dashoffset 1s ease';
+  setTimeout(function(){ring.style.strokeDashoffset=402-(402*pct/100);},80);
+  var badge=document.getElementById('passbadge');
+  badge.className='badge '+(pct>=70?'pass':'fail');
+  badge.textContent = pct>=70 ? '🎉 PASSED — board standard met!' : '💪 Keep drilling — 70% to pass';
+  /* review with solutions */
+  var rl=document.getElementById('reviewlist'); rl.innerHTML='';
+  var letters=['A','B','C','D'];
+  quiz.forEach(function(q,i){
+    var ok = picks[i]===q.a;
+    var d=document.createElement('div');
+    d.className='panel review-item';
+    d.innerHTML='<div class="rev-head"><span class="rev-ic" style="background:'+(ok?'#2E9E52':'#D14040')+'">'+(ok?'✓':'✗')+'</span>'
+      +'<div><span class="subjchip" style="background:'+SUBJCOLORS[q.s]+'">'+q.s+'</span><br>'+q.q
+      +'<div style="margin-top:7px;font-size:12.5px;color:#5A6780;">Your answer: <b style="color:'+(ok?'#2E9E52':'#D14040')+'">'
+      +(picks[i]!=null? letters[picks[i]]+' · '+q.c[picks[i]] : '—')+'</b>'
+      +(ok?'':' &nbsp;·&nbsp; Correct: <b style="color:#2E9E52">'+letters[q.a]+' · '+q.c[q.a]+'</b>')+'</div></div></div>'
+      +'<div class="sol" style="display:block;margin-top:12px;"><h4>📘 Step-by-Step Solution</h4>'+q.sol+'</div>';
+    rl.appendChild(d);
+  });
+}
+</script>
+<script>
+/* ---------- STUDY MODE: lectures + formula library ---------- */
+function C(n,f,h){return {n:n,f:f,h:h};}
+var STUDY={
+PSAD:[
+{t:'Strength of Materials',lec:'Every stress problem is force ÷ resisting area — the art is picking the right area and section. Axial members stretch by δ = PL/AE; beams bend per the flexure formula; shafts twist per the torsion formula. Always work in N and mm so stresses come out directly in MPa.',cards:[
+ C('Axial stress & deformation','σ = '+fr('P','A')+' · δ = '+fr('PL','AE'),'Series segments: add each δ. Thermal: δ = αLΔT; if restrained, σ = EαΔT.'),
+ C('Torsion','τ = '+fr('16T','πd³')+' · θ = '+fr('TL','JG'),'J = πd⁴/32 solid. Power P = 2πTN (N in rev/s).'),
+ C('Flexure','σ = '+fr('Mc','I')+' = '+fr('M','S'),'S = bh²/6 for rectangles. Max stress at extreme fiber where M is max.'),
+ C('Beam shear stress','τ = '+fr('VQ','Ib'),'Rectangle max 1.5V/A at the NA · circle 4V/3A · W-shape ≈ V/(d·tw).'),
+ C('Thin-walled vessel','σ<sub>hoop</sub> = '+fr('pD','2t')+' · σ<sub>long</sub> = '+fr('pD','4t'),'Hoop is double longitudinal — tanks split along the length.'),
+ C('Euler buckling','P<sub>cr</sub> = '+fr('π²EI','(KL)²'),'K: pin-pin 1.0 · fixed-free 2.0 · fixed-pin 0.7 · fixed-fixed 0.5.')]},
+{t:'Theory of Structures',lec:'Deflections come from four memorized cases plus superposition; indeterminate beams start from fixed-end moments. In moment distribution, stiffness attracts moment — the stiffer member takes the bigger share of the unbalanced moment.',cards:[
+ C('The four deflections',fr('PL³','48EI')+' · '+fr('5wL⁴','384EI')+' · '+fr('PL³','3EI')+' · '+fr('wL⁴','8EI'),'SS-midspan P · SS-UDL · cantilever tip P · cantilever UDL. Superpose combos.'),
+ C('Fixed-end moments','FEM = '+fr('PL','8')+' · '+fr('wL²','12')+' · '+fr('Pab²','L²'),'Inputs to moment distribution and slope-deflection.'),
+ C('Moment distribution','DF = '+fr('K','ΣK')+', K = '+fr('4EI','L'),'Far end pinned: K = 3EI/L. Carry-over ½ to fixed far ends.'),
+ C('Virtual work','δ = ∫'+fr('Mm','EI')+'dx · δ = Σ'+fr('SuL','AE'),'Integral for beams, summation for trusses (S real, u virtual forces).')]},
+{t:'Reinforced Concrete — NSCP 2015',lec:'Design flow: factor loads (1.2D + 1.6L), find the required strength, then supply φ×nominal ≥ required. For beams the equilibrium pair a = Asfy/0.85f′cb and Mn = Asfy(d − a/2) solves 80% of problems. φ = 0.90 flexure (tension-controlled), 0.75 shear/spiral, 0.65 tied.',cards:[
+ C('Beam capacity','a = '+fr('A<sub>s</sub>f<sub>y</sub>','0.85f′<sub>c</sub>b')+' · M<sub>n</sub> = A<sub>s</sub>f<sub>y</sub>(d−a/2),','c = a/β₁; check εt ≥ 0.005 for φ = 0.90. β₁ = 0.85 up to f′c = 28, −0.05 per 7 MPa.'),
+ C('Steel limits','ρ<sub>min</sub> = '+fr('1.4','f<sub>y</sub>')+' or '+fr('0.25√f′<sub>c</sub>','f<sub>y</sub>'),'Take the larger. ρb = 0.85f′cβ₁(600)/[fy(600+fy)].'),
+ C('Shear','V<sub>c</sub> = 0.17λ√f′<sub>c</sub>b<sub>w</sub>d · V<sub>s</sub> = '+fr('A<sub>v</sub>f<sub>yt</sub>d','s'),'Stirrups when Vu > φVc/2. Max spacing d/2 ≤ 600 mm.'),
+ C('Columns','φP<sub>n</sub> = φk[0.85f′<sub>c</sub>(A<sub>g</sub>−A<sub>st</sub>)+f<sub>y</sub>A<sub>st</sub>]','k = 0.80, φ = 0.65 tied · k = 0.85, φ = 0.75 spiral · 1% ≤ ρg ≤ 8%.'),
+ C('Footing shears','wide-beam @ d · punching: V<sub>c</sub> = 0.33λ√f′<sub>c</sub>b<sub>o</sub>d','bo = 4(c+d) for square columns, perimeter taken at d/2 from faces.')]},
+{t:'Prestressed Concrete',lec:'Prestress is deliberate pre-compression. Superpose three stresses at any fiber: axial −P/A, eccentricity ∓Pec/I, and load moment ±Mc/I. Check top AND bottom fibers, both at transfer (P big, M small) and at service (losses applied, M full).',cards:[
+ C('Fiber stresses','f = −'+fr('P','A')+' ∓ '+fr('Pec','I')+' ± '+fr('Mc','I'),'Compression negative. Kern of a rectangle: e = h/6 keeps the whole section compressed.'),
+ C('Load balancing','w<sub>bal</sub> = '+fr('8Pe','L²'),'A parabolic tendon "carries" this UDL; design for the net remainder.'),
+ C('Losses','P<sub>e</sub> = P<sub>i</sub>(1 − losses)','ES + creep + shrinkage + relaxation (+ friction & anchorage set for post-tensioned). Typically 15–25%.')]},
+{t:'Structural Steel',lec:'Compact, fully braced beams reach the plastic moment Mp = FyZx. Columns follow the AISC curve: elastic (Euler-driven) when slender, inelastic 0.658-power law when stocky — the boundary is KL/r = 4.71√(E/Fy).',cards:[
+ C('Beam flexure','M<sub>p</sub> = F<sub>y</sub>Z<sub>x</sub>, φ<sub>b</sub> = 0.90','Valid while Lb ≤ Lp = 1.76ry√(E/Fy). Shape factor Z/S ≈ 1.12 for W-shapes.'),
+ C('Column curve','F<sub>e</sub> = '+fr('π²E','(KL/r)²')+' · F<sub>cr</sub> = 0.658<sup>F<sub>y</sub>/F<sub>e</sub></sup>F<sub>y</sub>','Elastic branch Fcr = 0.877Fe when KL/r > 4.71√(E/Fy). Pn = FcrAg.'),
+ C('Bolts & welds','R<sub>n</sub> = F<sub>nv</sub>A<sub>b</sub>n · weld R<sub>n</sub> = 0.707t<sub>w</sub>L(0.6F<sub>EXX</sub>)','Bearing 2.4dbtFu. Staggered holes add s²/4g to net width per crossing.')]}
+],
+MSTE:[
+{t:'Algebra · Trig · Geometry',lec:'Board math rewards recognizing the template fast: quadratic root properties, progression sums, and the sine/cosine laws for any triangle that is not right-angled. Bearings problems are triangles in disguise — sketch the north lines first.',cards:[
+ C('Quadratic','x = '+fr('−b ± √(b²−4ac)','2a'),'Sum of roots −b/a, product c/a.'),
+ C('Progressions','S<sub>AP</sub> = '+fr('n','2')+'(a₁+a<sub>n</sub>) · a<sub>n</sub> = a₁r<sup>n−1</sup>','Infinite GP: S = a₁/(1−r), |r| < 1.'),
+ C('Triangle laws',fr('a','sin A')+' = 2R · a² = b²+c²−2bc cos A','Area = ½ab sin C · Heron √(s(s−a)(s−b)(s−c)).')]},
+{t:'Calculus & Differential Equations',lec:'Optimization = set dy/dx to zero. Volumes: disk for solid slices, shell for hollow spins, Pappus when the centroid is known. Growth/decay and cooling all reduce to x = x₀e^kt — solve k from the first data pair.',cards:[
+ C('Radius of curvature','ρ = '+fr('[1+(y′)²]<sup>3/2</sup>','|y″|'),'Frequent one-step item — just evaluate at the point.'),
+ C('Solids of revolution','V = π∫y²dx · V = 2π∫xy dx · V = A·2πr̄','Disk · shell · Pappus.'),
+ C('Growth / decay','x = x₀e<sup>kt</sup>','Half-life: k = ln2/t½. Newton cooling: T−Ts = (T₀−Ts)e^(−kt).')]},
+{t:'Probability & Statistics',lec:'Count first, divide second. Combinations when order does not matter, permutations when it does. Binomial for repeated yes/no trials; the normal curve converts any score to a z-value before reading areas.',cards:[
+ C('Counting','nPr = '+fr('n!','(n−r)!')+' · nCr = '+fr('n!','r!(n−r)!'),'Circular: (n−1)!. "At least one" = 1 − P(none).'),
+ C('Binomial','P = nCr·p<sup>r</sup>q<sup>n−r</sup>','Mean np, variance npq.'),
+ C('Normal','z = '+fr('x−μ','σ'),'±1σ 68.3% · ±2σ 95.4% · ±3σ 99.7%.')]},
+{t:'Engineering Economics',lec:'Everything is F = P(1+i)^n wearing different costumes. Match i and n to the SAME compounding period, and know whether payments form an ordinary annuity (end of period) or annuity due (start).',cards:[
+ C('Interest','F = P(1+i)<sup>n</sup> · ER = (1+'+fr('r','m')+')<sup>m</sup>−1','Continuous: F = Pe^(rn).'),
+ C('Annuities','P = A·'+fr('1−(1+i)<sup>−n</sup>','i')+' · F = A·'+fr('(1+i)<sup>n</sup>−1','i'),'Perpetuity P = A/i. Due: multiply by (1+i).'),
+ C('Depreciation','SL: d = '+fr('C₀−C<sub>n</sub>','n')+' · DB: BV = C₀(1−k)<sup>m</sup>','SYD weights (n−m+1)/Σyears · Matheson k = 1−(Cn/C₀)^(1/n).'),
+ C('Capitalized cost & break-even','CC = FC + '+fr('OM','i')+' + '+fr('RC','(1+i)<sup>L</sup>−1')+' · x = '+fr('FC','price−VC'),'Break-even: zero profit.')]},
+{t:'Surveying',lec:'Tape corrections: "too long, add; too short, subtract" when MEASURING (reverse when laying out). Curves are pure geometry around R and I — the constant 1145.916 converts radius to degree of curve for a 20 m arc.',cards:[
+ C('Tape corrections','C<sub>t</sub> = αL(ΔT) · C<sub>p</sub> = '+fr('(P−P<sub>s</sub>)L','AE')+' · C<sub>sag</sub> = '+fr('w²L³','24P²'),'Sag always subtracts. Curvature-refraction: 0.0675K² m.'),
+ C('Simple curve','T = R tan'+fr('I','2')+' · L<sub>c</sub> = '+fr('πRI','180°')+' · E = R(sec'+fr('I','2')+'−1)','D = 1145.916/R (20 m arc). Chord = 2R sin(I/2).'),
+ C('Vertical curve','x<sub>peak</sub> = '+fr('g₁L','g₁−g₂'),'Squared property y₁/x₁² = y₂/x₂². Mid offset = L(g₁−g₂)/8.'),
+ C('Areas & earthworks','Simpson: '+fr('d','3')+'(ends+4Σodd+2Σeven) · V = '+fr('L(A₁+A₂)','2'),'Simpson needs odd offsets. Prismoidal: L/6(A₁+4Am+A₂).')]},
+{t:'Transportation & Highway',lec:'Stopping distance = thinking distance + braking distance. Superelevation and side friction jointly resist the centripetal demand v²/gR. Traffic obeys q = k·v — flow equals density times speed.',cards:[
+ C('Stopping sight distance','S = vt + '+fr('v²','2g(f±G)'),'v in m/s! + upgrade, − downgrade. t ≈ 2.5 s.'),
+ C('Superelevation','e + f = '+fr('V²','127R')+' (V kph)','Ideal (frictionless) e: drop f.'),
+ C('Traffic flow','q = k·v · headway = '+fr('3600','q')+' · spacing = '+fr('1000','k'),'Accident rate per MEV: A×10⁶/(ADT×365×N).')]},
+{t:'Construction Management',lec:'PERT averages three time estimates with the mode weighted ×4; CPM finds the zero-float chain. When crashing, always buy time on the critical path at the cheapest cost slope first.',cards:[
+ C('PERT','t<sub>e</sub> = '+fr('a+4m+b','6')+' · σ = '+fr('b−a','6'),'Project σ² = Σσ² on the critical path; z = (T−TE)/σ.'),
+ C('Floats & crashing','TF = LS−ES · slope = '+fr('ΔCost','ΔTime'),'Critical path: TF = 0, longest duration.'),
+ C('OSH numbers','Scaffolds ≥ 4× load · guardrail ≈ 1.0 m · excavation 1.2 m','Concept questions from RA 11058 / DO 13.')]}
+],
+HGE:[
+{t:'Hydrostatics',lec:'Pressure grows linearly with depth: p = γh. On any flat submerged surface the resultant is γh̄A, applied BELOW the centroid by e = Ig/Aȳ — deeper water pushes harder, dragging the resultant down. Gates: take moments about the hinge.',cards:[
+ C('Plane surface','F = γh̄A · e = '+fr('I<sub>g</sub>','Aȳ'),'Resultant at h̄ + e from the surface, measured along the plane.'),
+ C('Curved surface','F<sub>H</sub> = γh̄A<sub>proj</sub> · F<sub>V</sub> = γV<sub>above</sub>','FV is (real or imaginary) water weight above the surface.'),
+ C('Dams','FS<sub>o</sub> = '+fr('RM','OM')+' · q = '+fr('R<sub>y</sub>','B')+'(1±'+fr('6e','B')+')','x̄ = (RM−OM)/Ry; e = B/2 − x̄. Include uplift when given.')]},
+{t:'Buoyancy & Relative Equilibrium',lec:'A floating body displaces its own weight in fluid — denser fluid means shallower draft. Accelerating a liquid tilts or reshapes its surface: linear acceleration tilts by tan θ = a/g; rotation makes a paraboloid holding half a cylinder of volume.',cards:[
+ C('Archimedes','BF = γ<sub>f</sub>V<sub>D</sub> = W','Sea→fresh: γ drops so VD (and draft) grow.'),
+ C('Stability','MB<sub>o</sub> = '+fr('I','V<sub>D</sub>')+' · MG = MB<sub>o</sub> − GB<sub>o</sub>','Stable if MG > 0. Righting moment W·MG·sinθ.'),
+ C('Accelerated vessels','tan θ = '+fr('a','g')+' · p = γh(1±'+fr('a','g')+') · y = '+fr('ω²x²','2g'),'+ up, − down. rpm→rad/s: ω = 2πN/60.')]},
+{t:'Flow, Orifices & Pipes',lec:'Bernoulli is an energy budget between two points: add pump head, subtract losses. Orifice speed is free-fall speed √(2gH) trimmed by Cv. Pipe friction: memorize the SI shortcut hf = 0.0826fLQ²/D⁵.',cards:[
+ C('Energy equation',fr('p','γ')+'+'+fr('V²','2g')+'+z + HA − HL = same downstream','Pump power P = γQ·HA (watts).'),
+ C('Orifice','v = C<sub>v</sub>√(2gH) · Q = C<sub>d</sub>A√(2gH)','Cd = Cc×Cv. Emptying: t = 2As(√h₁−√h₂)/(CdAo√2g).'),
+ C('Darcy–Weisbach','h<sub>f</sub> = '+fr('fLV²','2gD')+' = '+fr('0.0826fLQ²','D⁵'),'Series: Q same, HL adds · parallel: HL same, Q adds. Laminar f = 64/Re.')]},
+{t:'Open Channels, Weirs & Momentum',lec:'Manning drives uniform flow: velocity from roughness, hydraulic radius, slope. Critical depth splits tranquil from shooting flow (Froude = 1). Jets: force equals the momentum flux destroyed — use RELATIVE velocity for moving targets.',cards:[
+ C('Manning','V = '+fr('1','n')+'R<sup>2/3</sup>S<sup>1/2</sup>, R = '+fr('A','P'),'Best rectangle b = 2d · best trapezoid = half hexagon.'),
+ C('Critical flow & jump','d<sub>c</sub> = ∛(q²/g) · '+fr('d₂','d₁')+' = ½(√(1+8F₁²)−1),','F = V/√(gd). Jump loss ΔE = (d₂−d₁)³/(4d₁d₂).'),
+ C('Weirs (SI)','Q = 1.84LH<sup>3/2</sup> · Q = 1.4H<sup>5/2</sup> (90° notch)','Contracted: L′ = L − 0.1nH. Cipolletti 1.859LH^1.5.'),
+ C('Jet forces','F = ρQ(V₁−V₂) = ρAV² on a fixed plate','Moving plate: replace V with (V−v) everywhere.')]},
+{t:'Soil Properties & Compaction',lec:'Draw the three-phase block and everything falls out of Se = wG — the bridge between water content, void ratio, and saturation. Compaction control compares field dry density to Proctor max: usually ≥ 95%.',cards:[
+ C('Phase relations','e = '+fr('V<sub>v</sub>','V<sub>s</sub>')+' · Se = wG · γ<sub>d</sub> = '+fr('γ','1+w'),'γ = (G+Se)γw/(1+e) · γsat = (G+e)γw/(1+e) · γ′ = γsat − γw.'),
+ C('Relative density','D<sub>r</sub> = '+fr('e<sub>max</sub>−e','e<sub>max</sub>−e<sub>min</sub>'),'0–15% very loose … 85–100% very dense.'),
+ C('Index & gradation','PI = LL−PL · C<sub>u</sub> = '+fr('D₆₀','D₁₀')+' · C<sub>c</sub> = '+fr('D₃₀²','D₆₀D₁₀'),'Well-graded sand: Cu ≥ 6, Cc 1–3. A-line PI = 0.73(LL−20).')]},
+{t:'Seepage & Soil Stresses',lec:'Darcy: v = ki. Effective stress σ′ = σ − u carries the strength; upward seepage erodes it toward the quick condition at icr ≈ γ′/γw. Surface loads spread with depth — Boussinesq exactly, the 2:1 method approximately.',cards:[
+ C('Permeability','Q = kiA · flow net Q = kH'+fr('N<sub>f</sub>','N<sub>d</sub>'),'Layered soils: kH = ΣkiHi/H, kV = H/Σ(Hi/ki).'),
+ C('Effective stress','σ′ = σ − u','Quick condition: icr = (G−1)/(1+e). Liquefaction = sudden σ′ → 0 in loose saturated sand.'),
+ C('Stress distribution','2:1 method Δp = '+fr('Q','(B+z)(L+z)'),'Point loads: Boussinesq/Westergaard with the given influence factor N.')]},
+{t:'Strength, Bearing & Consolidation',lec:'Mohr–Coulomb τ = c + σ′tanφ underlies everything: triaxial results, Terzaghi bearing capacity, and slope safety. Clay settles by squeezing out pore water — magnitude from Cc, speed from cv.',cards:[
+ C('Shear strength','τ = c + σ′tanφ · σ₁ = σ₃tan²(45+φ/2)+2c·tan(45+φ/2)','Unconfined: qu = 2c.'),
+ C('Terzaghi','q<sub>ult</sub> = cN<sub>c</sub> + qN<sub>q</sub> + 0.5γBN<sub>γ</sub>','Square: 1.3c…+0.4γBNγ · circular 0.3. q = γDf. FS ≈ 3.'),
+ C('Consolidation','S = '+fr('C<sub>c</sub>H','1+e₀')+'log'+fr('p₀+Δp','p₀')+' · t = '+fr('T<sub>v</sub>H<sub>dr</sub>²','c<sub>v</sub>'),'Cc ≈ 0.009(LL−10). Tv: 0.197 @ 50%, 0.848 @ 90%. Hdr = H/2 double drainage.')]},
+{t:'Lateral Earth Pressure & Slopes',lec:'Rankine: the wall relaxes → active Ka; the wall shoves → passive Kp = 1/Ka. Pressure diagrams are triangles (γ soil) plus rectangles (surcharge) plus water at K = 1. Cohesion allows tension cracks near the top.',cards:[
+ C('Coefficients','K<sub>a</sub> = '+fr('1−sinφ','1+sinφ')+' · K<sub>p</sub> = '+fr('1','K<sub>a</sub>')+' · K₀ = 1−sinφ','φ = 30° → Ka = 1/3 (memorize!).'),
+ C('Active thrust','P<sub>a</sub> = ½K<sub>a</sub>γH² @ H/3','Surcharge adds KaqH (rectangle @ H/2). Water: ½γwh².'),
+ C('Tension crack & slopes','z<sub>c</sub> = '+fr('2c','γ√K<sub>a</sub>')+' · FS = '+fr('tanφ','tanβ'),'Seepage slope: multiply by γ′/γsat. Critical cut Hcr = 4c/(γ√Ka).')]}
+]};
+
+var SUBJTINT={PSAD:['#2F4BD0','#E7EBFB'],MSTE:['#E08A00','#FCF1DD'],HGE:['#0E8F8F','#DFF3F1']};
+function openStudy(){showScreen('scr-study');renderStudy('PSAD',document.querySelector('.stab'));}
+function renderStudy(subj,btn){
+  document.querySelectorAll('.stab').forEach(function(b){b.classList.remove('on');});
+  if(btn)btn.classList.add('on');
+  var col=SUBJTINT[subj][0],soft=SUBJTINT[subj][1];
+  var out='';
+  STUDY[subj].forEach(function(tp,i){
+    out+='<div class="acc'+(i===0?' open':'')+'">'
+      +'<button class="acc-h" onclick="this.parentNode.classList.toggle(\'open\')">'
+      +'<span class="num" style="background:'+col+'">'+subj+' '+(i+1)+'</span>'+tp.t
+      +'<span class="arrow">▸</span></button>'
+      +'<div class="acc-b"><div class="lec" style="border-left-color:'+col+'">💡 '+tp.lec+'</div>';
+    tp.cards.forEach(function(c){
+      out+='<div class="scard" style="border-color:'+col+'33"><div class="sn">'+c.n+'</div>'
+        +'<div class="sfx" style="background:'+soft+'">'+c.f+'</div>'
+        +'<div class="sh">'+c.h+'</div></div>';
+    });
+    out+='</div></div>';
+  });
+  document.getElementById('studylist').innerHTML=out;
+  window.scrollTo(0,0);
+}
+</script>
+
+<script>
+/* ---------- STORAGE (localStorage on hosted site; in-memory fallback in previews) ---------- */
+var MEM={};
+function sget(k){try{var v=localStorage.getItem(k);if(v!=null)return JSON.parse(v);}catch(e){} return (k in MEM)?MEM[k]:null;}
+function sset(k,v){MEM[k]=v;try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+/* ---------- TOPIC & YEAR TAGS (map bank items to Study topics for KPIs) ---------- */
+(function(){
+  var t=[1,2,0,0,2,2,4,3,  3,4,4,2,6,5,0,3,  1,6,3,3,1,3,7,4];
+  t.forEach(function(v,i){if(BANK[i])BANK[i].t=v;});
+  var Y={4:'Nov 2019',16:'Nov 2019',20:'Nov 2019',14:'May 2022',17:'May 2022',18:'May 2022'};
+  Object.keys(Y).forEach(function(i){if(BANK[i])BANK[i].y=Y[i];});
+})();
+
+/* ---------- BANK EXPANSION: +2 per subject (10 each) ---------- */
+BANK.push(
+{s:'PSAD',t:0,q:'A cylindrical pressure vessel has an inside diameter of 1.2 m and wall thickness of 10 mm. It carries an internal pressure of 1.5 MPa. Evaluate the circumferential (hoop) stress.',
+ c:['90 MPa','45 MPa','180 MPa','60 MPa'],a:0,
+ sol:step(1,'Hoop stress governs thin-walled cylinders: '+fx('σ = '+fr('pD','2t')))
+ +step(2,fx('σ = '+fr('1.5 × 1200','2 × 10')))
+ +ans('σ = 90 MPa · (45 MPa is the longitudinal stress pD/4t)')},
+{s:'PSAD',t:1,q:'Two prismatic members of equal EI meet at a rigid joint: member A is 4 m long, member B is 6 m long, both fixed at their far ends. Evaluate the distribution factor for member A.',
+ c:['0.60','0.40','0.50','0.67'],a:0,
+ sol:step(1,'Both far ends fixed → stiffness '+fx('K = '+fr('4EI','L'))+' — only 1/L matters since EI is equal')
+ +step(2,'K<sub>A</sub> : K<sub>B</sub> = 1/4 : 1/6 = 0.25 : 0.167')
+ +step(3,fx('DF<sub>A</sub> = '+fr('0.25','0.25+0.167')))
+ +ans('DF_A = 0.60 — the shorter (stiffer) member takes the bigger share')},
+{s:'MSTE',t:1,q:'Evaluate the radius of curvature of the parabola y = x² at the point (1, 1).',
+ c:['5.59','2.24','11.18','4.47'],a:0,
+ sol:step(1,'y′ = 2x = 2 and y″ = 2 at the point')
+ +step(2,fx('ρ = '+fr('[1+(y′)²]<sup>3/2</sup>','|y″|')+' = '+fr('(1+4)<sup>3/2</sup>','2')))
+ +step(3,'5<sup>3/2</sup> = 11.18')
+ +ans('ρ = 5.59')},
+{s:'MSTE',t:5,q:'A highway lane carries a flow of 1800 vehicles per hour. Evaluate the average time headway between vehicles.',
+ c:['2.0 s','0.5 s','3.6 s','1.8 s'],a:0,
+ sol:step(1,'Headway is the inverse of flow: '+fx('h = '+fr('3600','q')))
+ +step(2,fx('h = '+fr('3600','1800')))
+ +ans('h = 2.0 s — at capacity (~1800–2000 vph) headways approach 2 seconds')},
+{s:'HGE',t:2,q:'Water flows at 0.05 m³/s through a 200 mm ø pipe, 500 m long, with friction factor f = 0.02. Evaluate the head loss (Darcy–Weisbach).',
+ c:['6.45 m','3.23 m','12.9 m','1.61 m'],a:0,
+ sol:step(1,'Use the SI discharge form: '+fx('h<sub>f</sub> = '+fr('0.0826 f L Q²','D⁵')))
+ +step(2,fx('h<sub>f</sub> = '+fr('0.0826 × 0.02 × 500 × 0.05²','0.2⁵')+' = '+fr('0.002065','3.2×10⁻⁴')))
+ +ans('hf ≈ 6.45 m')},
+{s:'HGE',t:5,q:'The water table sits 2 m below the ground surface. Soil above it has γ = 17 kN/m³; below, γsat = 20 kN/m³. Evaluate the effective vertical stress 5 m below the surface.',
+ c:['64.6 kPa','94.0 kPa','29.4 kPa','74.4 kPa'],a:0,
+ sol:step(1,'Total stress: σ = 2(17) + 3(20) = 94 kPa')
+ +step(2,'Pore pressure: u = 3(9.81) = 29.4 kPa')
+ +step(3,fx('σ′ = σ − u = 94 − 29.4'))
+ +ans('σ′ = 64.6 kPa · (94 kPa is total stress — read the question!)')}
+);
+
+/* ---------- USER PROFILE + HISTORY + RECOMMENDATIONS ---------- */
+function saveResult(rec){
+  var h=sget('cele_hist')||[]; h.push(rec);
+  if(h.length>200)h=h.slice(-200);
+  sset('cele_hist',h);
+}
+function goHome(){renderHome();showScreen('scr-home');}
+
+function renderHome(){
+  var name=sget('cele_name');
+  var u=document.getElementById('homeuser');
+  if(!name){
+    u.innerHTML='<div class="panel" style="margin-top:16px;"><h3>👋 Welcome! What should we call you?</h3>'
+      +'<input class="nameinput" id="nameinp" placeholder="Enter your name (e.g., Engr. Gem)" maxlength="30">'
+      +'<button class="go" style="margin-top:12px;" onclick="saveName()">SAVE &amp; START TRAINING ▸</button></div>';
+    document.getElementById('homedash').innerHTML='';
+    return;
+  }
+  u.innerHTML='<div class="greet"><span>👋 Hi, <b>'+name+'</b>! Ready to train?</span><button class="edit" onclick="editName()">edit</button></div>';
+  renderDash();
+}
+function saveName(){
+  var v=document.getElementById('nameinp').value.trim();
+  if(!v){alert('Please enter your name.');return;}
+  sset('cele_name',v); renderHome();
+}
+function editName(){sset('cele_name',null);renderHome();}
+
+function renderDash(){
+  var h=sget('cele_hist')||[];
+  var d=document.getElementById('homedash');
+  if(!h.length){
+    d.innerHTML='<div class="panel"><h3>📈 Your Performance</h3><p style="font-size:13px;color:#5A6780;">No attempts yet — take your first quiz and your history, KPIs, and personalized study recommendations will appear here.</p></div>';
+    return;
+  }
+  /* KPIs */
+  var att=h.length, avg=Math.round(h.reduce(function(a,r){return a+r.pct;},0)/att),
+      best=Math.max.apply(null,h.map(function(r){return r.pct;}));
+  var totItems=h.reduce(function(a,r){return a+r.n;},0),
+      totSecs=h.reduce(function(a,r){return a+r.secs;},0),
+      paceMin=(totSecs/60/totItems).toFixed(1);
+  var passRate=Math.round(h.filter(function(r){return r.pct>=70;}).length/att*100);
+
+  /* per-topic stats */
+  var stats={};
+  h.forEach(function(r){(r.items||[]).forEach(function(it){
+    if(it.t==null)return;
+    var k=it.s+'|'+it.t; stats[k]=stats[k]||{n:0,ok:0};
+    stats[k].n++; if(it.ok)stats[k].ok++;
+  });});
+  var recs=Object.keys(stats).map(function(k){
+    var p=k.split('|'); var st=stats[k];
+    return {s:p[0], t:parseInt(p[1]), n:st.n, acc:st.ok/st.n};
+  }).filter(function(r){return STUDY[r.s]&&STUDY[r.s][r.t];})
+    .sort(function(a,b){return a.acc-b.acc||b.n-a.n;});
+  var weak=recs.filter(function(r){return r.acc<0.75;}).slice(0,4);
+
+  var out='<div class="panel"><h3>📈 Your Performance — KPIs</h3><div class="kpirow">'
+    +'<div class="stat"><b>'+att+'</b><span>ATTEMPTS</span></div>'
+    +'<div class="stat"><b style="color:'+(avg>=70?'#2E9E52':'#D14040')+'">'+avg+'%</b><span>AVG SCORE</span></div>'
+    +'<div class="stat"><b>'+best+'%</b><span>BEST</span></div>'
+    +'<div class="stat"><b>'+passRate+'%</b><span>PASS RATE (≥70%)</span></div>'
+    +'<div class="stat"><b>'+paceMin+'</b><span>MIN / ITEM</span></div>'
+    +'<div class="stat"><b>'+totItems+'</b><span>ITEMS SOLVED</span></div>'
+    +'</div></div>';
+
+  out+='<div class="panel"><h3>🎯 Recommended Focus Areas</h3>';
+  if(!weak.length){
+    out+='<p style="font-size:13px;color:#2E9E52;font-weight:600;">💪 No weak topics detected (all ≥ 75% accuracy). Keep mixing subjects to expose gaps — or take a Random Mock Set!</p>';
+  }else{
+    out+='<p style="font-size:12px;color:#5A6780;margin-bottom:4px;">Based on your answer history, prioritize these topics (lowest accuracy first). Tap STUDY to jump straight to the lecture.</p>';
+    weak.forEach(function(r){
+      var col=r.acc<0.4?'#D14040':(r.acc<0.6?'#E08A00':'#8A8F00');
+      out+='<div class="recitem"><span class="acc-pct" style="background:'+col+'">'+Math.round(r.acc*100)+'%</span>'
+        +'<span class="meta">'+STUDY[r.s][r.t].t+'<small>'+r.s+' · '+r.n+' item(s) answered · target ≥ 75%</small></span>'
+        +'<button class="gobtn" onclick="goStudyTopic(\''+r.s+'\','+r.t+')">STUDY ▸</button></div>';
+    });
+  }
+  out+='</div>';
+
+  /* recent history */
+  out+='<div class="panel"><h3>🕘 Recent Attempts</h3>';
+  h.slice(-5).reverse().forEach(function(r){
+    var dt=new Date(r.d);
+    var label = r.setType==='past' ? ('📄 '+(r.year||'Past board')) : r.setType==='mock' ? ('🎯 Mock · '+r.subj) : (r.subj+' · '+r.n+' items');
+    out+='<div class="histline"><span>'+label+' · '+r.mode+'</span><span><b style="color:'+(r.pct>=70?'#2E9E52':'#D14040')+'">'+r.pct+'%</b> · '+fmt(r.secs)+' · '+(dt.getMonth()+1)+'/'+dt.getDate()+'</span></div>';
+  });
+  out+='</div>';
+  d.innerHTML=out;
+}
+
+function goStudyTopic(subj,ti){
+  showScreen('scr-study');
+  var order={PSAD:0,MSTE:1,HGE:2};
+  var tabs=document.querySelectorAll('.stab');
+  renderStudy(subj,tabs[order[subj]]);
+  var accs=document.querySelectorAll('#studylist .acc');
+  accs.forEach(function(a,i){a.classList.toggle('open',i===ti);});
+  if(accs[ti])setTimeout(function(){accs[ti].scrollIntoView({behavior:'smooth',block:'start'});},60);
+}
+
+/* init */
+renderHome();
+</script>
+<script>
+/* ---------- TOPIC + YEAR TAGS for the original 24 bank items ---------- */
+(function(){
+  var TIDX=[1,2,0,0,2,2,4,3,  3,4,4,2,6,5,0,3,  1,6,3,3,1,3,7,4];
+  for(var i=0;i<24&&i<BANK.length;i++){ if(BANK[i].t==null)BANK[i].t=TIDX[i]; }
+  var YT={4:'Nov 2019',14:'May 2022',16:'Nov 2019',17:'May 2022',18:'May 2022',20:'Nov 2019'};
+  Object.keys(YT).forEach(function(k){BANK[k].y=YT[k];});
+})();
+
+/* ---------- AUTHENTIC PAST-BOARD ADDITIONS (from uploaded references) ---------- */
+BANK.push(
+{s:'HGE',t:1,y:'Nov 2019',q:'A closed cylindrical tank, 1 m in diameter and 3 m high, is full of water and rotates about its vertical axis at 120 rpm. Evaluate the pressure at the top rim, just under the cover.',
+ c:['19.75 kPa','9.87 kPa','39.50 kPa','29.60 kPa'],a:0,
+ sol:step(1,'ω = 2πN/60 = 2π(120)/60 = 12.57 rad/s')
+ +step(2,'Paraboloid rise at the wall (r = 0.5 m): '+fx('h = '+fr('ω²r²','2g')+' = '+fr('12.57² × 0.5²','19.62')+' = 2.01 m'))
+ +step(3,'Closed & full tank → this head presses on the cover rim: p = γh = 9.81(2.01)')
+ +ans('p = 19.75 kPa')},
+{s:'HGE',t:0,y:'Nov 2019',q:'A mercury barometer reads 620 mm at the base of a mountain and 450 mm at the top. Assuming the unit weight of air is constant at 10 N/m³, evaluate the approximate height of the mountain.',
+ c:['2268 m','1700 m','2040 m','2500 m'],a:0,
+ sol:step(1,'The air column weight equals the mercury pressure difference: '+fx('γ<sub>air</sub>h = γ<sub>Hg</sub>Δh<sub>Hg</sub>'))
+ +step(2,'Δp = 9810(13.6)(0.620 − 0.450) = 22 681 Pa')
+ +step(3,fx('h = '+fr('22 681','10')))
+ +ans('h ≈ 2268 m')},
+{s:'HGE',t:3,y:'Nov 2019',q:'A 25 mm ø water jet with a velocity of 8 m/s strikes a flat plate at right angles. The plate moves in the same direction as the jet at 3 m/s. Evaluate the force on the plate.',
+ c:['12.27 N','31.42 N','6.14 N','24.50 N'],a:0,
+ sol:step(1,'Moving plate → use RELATIVE velocity everywhere: '+fx('F = ρA(V − v)²'))
+ +step(2,'A = π/4(0.025)² = 4.909×10⁻⁴ m² · (V−v)² = (8−3)² = 25')
+ +step(3,'F = 1000 × 4.909×10⁻⁴ × 25')
+ +ans('F = 12.27 N · (31.4 N is the fixed-plate trap using V = 8)')},
+{s:'HGE',t:2,y:'Nov 2019',q:'Evaluate the kinetic energy head, in meters, of water flowing at 4 m/s.',
+ c:['0.815 m','1.630 m','0.408 m','8.000 m'],a:0,
+ sol:step(1,'Velocity head: '+fx(fr('V²','2g')+' = '+fr('4²','2(9.81)')))
+ +ans('KE = 0.815 m of water')},
+{s:'HGE',t:0,y:'Nov 2019',q:'A hydraulic jack is used to raise a 10 kN car. A force of 40 kN acts on a 25 cm ø plunger. What diameter of jack, in mm, is required to raise the car?',
+ c:['125 mm','250 mm','62.5 mm','88.4 mm'],a:0,
+ sol:step(1,'Pascal: same pressure throughout the fluid. p = 40/(π/4 × 25²) = 0.0815 kN/cm²')
+ +step(2,'Area needed for 10 kN: '+fx('A = '+fr('10','0.0815')+' = 122.7 cm² → d = 12.5 cm'))
+ +ans('d = 125 mm')},
+{s:'HGE',t:6,y:'Nov 2019',q:'Evaluate the settlement of an 8 m thick plastic clay layer given: initial intergranular pressure = 200 kPa, pressure increase = 120 kPa, compression index Cc = 0.315, void ratio = 1.132.',
+ c:['0.241 m','0.280 m','0.190 m','0.320 m'],a:0,
+ sol:step(1,fx('S = '+fr('C<sub>c</sub>H','1+e₀')+' log'+fr('p₀+Δp','p₀')))
+ +step(2,fx('S = '+fr('0.315 × 8','2.132')+' log'+fr('320','200'))+' = 1.182 × 0.204')
+ +ans('S = 0.241 m')},
+{s:'HGE',t:2,y:'May 2022',q:'A jet issues from an orifice on the 45° inclined side of a tank under a head of 5 m (Cv = 1.0). Neglecting air resistance, evaluate the maximum height the jet rises above the center of the orifice.',
+ c:['2.5 m','5.0 m','3.5 m','1.8 m'],a:0,
+ sol:step(1,'Jet speed: v = Cv√(2gH) = √(2×9.81×5) = 9.90 m/s')
+ +step(2,'Vertical component at 45°: v<sub>y</sub> = 9.90 sin45° = 7.00 m/s')
+ +step(3,'Rise until v<sub>y</sub> = 0: '+fx('h = '+fr('v<sub>y</sub>²','2g')+' = '+fr('7.00²','19.62')))
+ +ans('h = 2.5 m — exactly half the head, since sin²45° = ½')},
+{s:'MSTE',t:1,y:'Nov 2019',q:'Radon-22 decays according to A = A₀e^(−0.181t), t in days. Evaluate the material\u2019s half-life.',
+ c:['3.83 days','5.52 days','2.77 days','7.66 days'],a:0,
+ sol:step(1,'Set A = ½A₀: ½ = e^(−0.181t)')
+ +step(2,fx('t = '+fr('ln 2','0.181')+' = '+fr('0.6931','0.181')))
+ +ans('t½ = 3.83 days')},
+{s:'MSTE',t:0,y:'May 2019',q:'A professor pays his son $8 for every equation solved correctly and fines him $5 for every incorrect one. After 26 problems, neither owes the other. How many did the boy solve correctly?',
+ c:['10','16','13','12'],a:0,
+ sol:step(1,'Let x = correct, y = wrong: x + y = 26 and 8x − 5y = 0')
+ +step(2,'8x = 5(26 − x) → 13x = 130')
+ +ans('x = 10 correct (and 16 wrong)')},
+{s:'MSTE',t:0,y:'May 2019',q:'A conveyor belt moves 300 lb of cans to storage in 2 minutes; a smaller belt does the same job in 6 minutes. If both run together, how long does the job take?',
+ c:['1.5 min','4.0 min','3.0 min','1.2 min'],a:0,
+ sol:step(1,'Combined rates: '+fx(fr('1','2')+' + '+fr('1','6')+' = '+fr('1','t')))
+ +step(2,'1/t = 2/3')
+ +ans('t = 1.5 minutes')},
+{s:'MSTE',t:3,y:'May 2019',q:'A plant requires ₱8 M fixed capital and ₱1.5 M working capital. Annual profit is ₱2 M and annual depreciation is 8% of fixed capital. Evaluate the rate of return on total investment.',
+ c:['14.32%','21.05%','17.00%','25.00%'],a:0,
+ sol:step(1,'Net annual profit = 2 − 0.08(8) = ₱1.36 M')
+ +step(2,fx('ROR = '+fr('1.36','8 + 1.5')+' × 100'))
+ +ans('ROR = 14.32%')}
+);
+
+/* ---------- PARAMETRIC GENERATORS — endless number-randomized variants ---------- */
+function pk(a){return a[Math.floor(Math.random()*a.length)];}
+function r1(x){return Math.round(x*10)/10;}
+function r2(x){return Math.round(x*100)/100;}
+function r3(x){return Math.round(x*1000)/1000;}
+function peso(x){return '\u20B1'+Math.round(x).toLocaleString('en-US');}
+
+var GENS={
+PSAD:[
+function(){var P=pk([20,30,40,50,60]),L=pk([4,5,6,8]),I=pk([80,100,120,150,200]);
+ var d=P*1000*Math.pow(L*1000,3)/(48*200000*I*1e6);
+ return {s:'PSAD',t:1,q:'A simply supported beam '+L+' m long carries '+P+' kN at midspan. E = 200 GPa, I = '+I+'\u00D710\u2076 mm\u2074. Evaluate the maximum deflection.',
+ c:[r2(d)+' mm',r2(2*d)+' mm',r2(d/2)+' mm',r2(1.5*d)+' mm'],a:0,
+ sol:step(1,fx('\u03B4 = '+fr('PL\u00B3','48EI')))+step(2,fx('\u03B4 = '+fr(P*1000+' \u00D7 '+(L*1000)+'\u00B3','48 \u00D7 200 000 \u00D7 '+I+'\u00D710\u2076')))+ans('\u03B4 = '+r2(d)+' mm')};},
+function(){var T=pk([5,8,10,12,15,20]),D=pk([75,100,125,150]);
+ var t=16*T*1e6/(Math.PI*D*D*D);
+ return {s:'PSAD',t:0,q:'A solid shaft '+D+' mm in diameter carries a torque of '+T+' kN\u00B7m. Evaluate the maximum shear stress.',
+ c:[r2(t)+' MPa',r2(t/2)+' MPa',r2(2*t)+' MPa',r2(0.75*t)+' MPa'],a:0,
+ sol:step(1,fx('\u03C4 = '+fr('16T','\u03C0d\u00B3')))+step(2,fx('\u03C4 = '+fr('16 \u00D7 '+T+'\u00D710\u2076','\u03C0 \u00D7 '+D+'\u00B3')))+ans('\u03C4 = '+r2(t)+' MPa')};},
+function(){var c0=pk([300,350,400,450,500]),dd=pk([300,350,400,450]);
+ var bo=4*(c0+dd);
+ return {s:'PSAD',t:2,q:'A square footing supports a '+c0+' mm \u00D7 '+c0+' mm column with effective depth d = '+dd+' mm. Evaluate the punching-shear critical perimeter b\u2080.',
+ c:[bo+' mm',4*c0+' mm',2*(c0+dd)+' mm',4*(c0+2*dd)+' mm'],a:0,
+ sol:step(1,'Critical section at d/2 from each face \u2192 side = c + d')+step(2,fx('b\u2080 = 4(c + d) = 4('+c0+' + '+dd+')'))+ans('b\u2080 = '+bo+' mm')};},
+function(){var I=pk([10,15,20,30]),L=pk([2.5,3,3.5,4]),e=pk([['pinned at both ends',1],['fixed at the base and free at the top',2]]);
+ var P=Math.PI*Math.PI*200000*I*1e6/Math.pow(e[1]*L*1000,2)/1000;
+ var other=e[1]===1?P/4:P*4;
+ return {s:'PSAD',t:0,q:'A '+L+' m steel column is '+e[0]+'. E = 200 GPa, I = '+I+'\u00D710\u2076 mm\u2074. Evaluate the Euler critical load.',
+ c:[r1(P)+' kN',r1(other)+' kN',r1(2*P)+' kN',r1(P/2)+' kN'],a:0,
+ sol:step(1,'K = '+e[1]+'.0 for this end condition')+step(2,fx('P<sub>cr</sub> = '+fr('\u03C0\u00B2EI','(KL)\u00B2')+' = '+fr('\u03C0\u00B2 \u00D7 200 000 \u00D7 '+I+'\u00D710\u2076','('+e[1]+' \u00D7 '+(L*1000)+')\u00B2')))+ans('Pcr \u2248 '+r1(P)+' kN')};},
+function(){var w=pk([12,16,20,24,30]),L=pk([4,5,6,8]);
+ var M=w*L*L/12;
+ return {s:'PSAD',t:1,q:'A fixed-end beam of span '+L+' m carries a uniform load of '+w+' kN/m. Evaluate the fixed-end moment at each support.',
+ c:[r1(M)+' kN\u00B7m',r1(w*L*L/8)+' kN\u00B7m',r1(w*L*L/24)+' kN\u00B7m',r1(w*L*L/16)+' kN\u00B7m'],a:0,
+ sol:step(1,fx('FEM = '+fr('wL\u00B2','12')+' = '+fr(w+' \u00D7 '+L+'\u00B2','12')))+ans('FEM = '+r1(M)+' kN\u00B7m \u00B7 (wL\u00B2/8 is the SS midspan moment trap)')};}
+],
+MSTE:[
+function(){var P=pk([20,40,50,80,100])*1000,r=pk([6,8,10,12]),m=pk([2,4,12]),y=pk([3,4,5]);
+ var mn={2:'semi-annually',4:'quarterly',12:'monthly'}[m];
+ var F=P*Math.pow(1+r/100/m,m*y), ann=P*Math.pow(1+r/100,y), sim=P*(1+r/100*y);
+ return {s:'MSTE',t:3,q:peso(P)+' is invested at '+r+'% compounded '+mn+'. Evaluate the amount after '+y+' years.',
+ c:[peso(F),peso(ann),peso(sim),peso(P*Math.pow(1+r/100/m,y))],a:0,
+ sol:step(1,'i = '+r+'%/'+m+' per period \u00B7 n = '+m+'\u00D7'+y+' = '+(m*y)+' periods')+step(2,fx('F = P(1+i)\u207F = '+P.toLocaleString('en-US')+'(1+'+(r/100/m).toFixed(4)+')<sup>'+(m*y)+'</sup>'))+ans('F \u2248 '+peso(F))};},
+function(){var R=pk([150,200,250,300,400]),I=pk([30,35,40,45,50,60]);
+ var T=R*Math.tan(I/2*Math.PI/180), Lc=Math.PI*R*I/180;
+ return {s:'MSTE',t:4,q:'A simple curve has I = '+I+'\u00B0 and R = '+R+' m. Evaluate the tangent distance.',
+ c:[r1(T)+' m',r1(Lc)+' m',r1(R*Math.sin(I/2*Math.PI/180))+' m',r1(0.85*T)+' m'],a:0,
+ sol:step(1,fx('T = R tan(I/2) = '+R+' tan '+(I/2)+'\u00B0'))+ans('T = '+r1(T)+' m \u00B7 ('+r1(Lc)+' m is the curve length Lc)')};},
+function(){var g1=pk([2,3,4,5]),g2=pk([1,2,3,4]),L=pk([80,100,120,160]);
+ var x=g1*L/(g1+g2);
+ return {s:'MSTE',t:4,q:'A summit parabolic curve is '+L+' m long with grades +'+g1+'% and \u2212'+g2+'%. How far from the PC is the highest point?',
+ c:[r1(x)+' m',r1(L/2)+' m',r1(L-x)+' m',r1(2*L/3)+' m'],a:0,
+ sol:step(1,fx('x = '+fr('g\u2081L','g\u2081\u2212g\u2082')+' = '+fr(g1+' \u00D7 '+L,g1+' \u2212 (\u2212'+g2+')')))+ans('x = '+r1(x)+' m from PC')};},
+function(){var V=pk([60,70,80,90,100]),f=pk([0.30,0.35,0.40]);
+ var v=V/3.6, react=v*2.5, brake=v*v/(2*9.81*f), S=react+brake;
+ return {s:'MSTE',t:5,q:'A car travels at '+V+' kph on a level road; perception\u2013reaction time is 2.5 s and f = '+f.toFixed(2)+'. Evaluate the stopping sight distance.',
+ c:[r1(S)+' m',r1(brake)+' m',r1(react)+' m',r1(react+v*v/(2*9.81*(f+0.05)))+' m'],a:0,
+ sol:step(1,'v = '+V+'/3.6 = '+r2(v)+' m/s \u2192 reaction = v\u00D72.5 = '+r1(react)+' m')+step(2,fx('braking = '+fr('v\u00B2','2gf')+' = '+r1(brake)+' m'))+ans('SSD = '+r1(S)+' m')};},
+function(){var C0=pk([500,800,1000,1200,2000])*1000,sv=pk([0.10,0.15,0.20]),n=pk([5,8,10]);
+ var m=2+Math.floor(Math.random()*(n-3));
+ var Cn=C0*sv, dep=(C0-Cn)/n, BV=C0-m*dep;
+ return {s:'MSTE',t:3,q:'Equipment costs '+peso(C0)+' with salvage value '+peso(Cn)+' after '+n+' years. Using straight-line depreciation, evaluate the book value at the end of year '+m+'.',
+ c:[peso(BV),peso(C0-m*C0/n),peso(C0-(m+1)*dep),peso(Cn+m*dep)],a:0,
+ sol:step(1,fx('d = '+fr('C\u2080\u2212C\u2099','n')+' = '+peso(dep)+'/yr'))+step(2,'BV = C\u2080 \u2212 '+m+'d')+ans('BV = '+peso(BV))};}
+],
+HGE:[
+function(){var h=pk([0.2,0.25,0.3,0.35,0.4]),a=pk([2,2.5,3,4]),d=pk([['upward',1],['downward',-1]]);
+ var p=9.81*h*(1+d[1]*a/9.81);
+ return {s:'HGE',t:1,q:'A glass of water '+(h*1000)+' mm tall is inside an elevator accelerating '+d[0].toUpperCase()+' at '+a+' m/s\u00B2. Evaluate the pressure at the bottom of the glass.',
+ c:[r2(p)+' kPa',r2(9.81*h)+' kPa',r2(9.81*h*(1-d[1]*a/9.81))+' kPa',r2(h*a)+' kPa'],a:0,
+ sol:step(1,fx('p = \u03B3h(1 '+(d[1]>0?'+':'\u2212')+' a/g)'))+step(2,fx('p = 9.81('+h+')(1 '+(d[1]>0?'+':'\u2212')+' '+a+'/9.81)'))+ans('p = '+r2(p)+' kPa')};},
+function(){var H=pk([4,6,8,10]),e0=pk([0.8,1.0,1.2,1.5]),Cc=pk([0.20,0.25,0.30,0.36]),p0=pk([100,150,180,200]),dp=pk([60,80,100,120]);
+ var S=Cc*H/(1+e0)*Math.log10((p0+dp)/p0);
+ return {s:'HGE',t:6,q:'A '+H+' m clay layer (e\u2080 = '+e0+', Cc = '+Cc+') carries an initial effective pressure of '+p0+' kPa, increased by '+dp+' kPa. Evaluate the primary consolidation settlement.',
+ c:[r3(S)+' m',r3(S*(1+e0))+' m',r3(S*2.3026)+' m',r3(S/2)+' m'],a:0,
+ sol:step(1,fx('S = '+fr('C<sub>c</sub>H','1+e\u2080')+' log'+fr('p\u2080+\u0394p','p\u2080')))+step(2,fx('S = '+fr(Cc+' \u00D7 '+H,String(1+e0))+' log'+fr(String(p0+dp),String(p0))))+ans('S = '+r3(S)+' m')};},
+function(){var d=pk([50,75,100]),V=pk([15,20,25,30]);
+ var F=1000*Math.PI/4*Math.pow(d/1000,2)*V*V/1000;
+ return {s:'HGE',t:3,q:'A '+d+' mm \u00F8 water jet at '+V+' m/s strikes a fixed flat plate normally. Evaluate the force on the plate.',
+ c:[r2(F)+' kN',r2(F/2)+' kN',r2(2*F)+' kN',r2(4*F)+' kN'],a:0,
+ sol:step(1,'A = \u03C0/4('+(d/1000)+')\u00B2 = '+(Math.PI/4*Math.pow(d/1000,2)).toFixed(5)+' m\u00B2')+step(2,fx('F = \u03C1AV\u00B2 = 1000 \u00D7 A \u00D7 '+V+'\u00B2'))+ans('F = '+r2(F)+' kN')};},
+function(){var phi=pk([28,30,32,36]),g=pk([16,17,18,20]),H=pk([4,5,6,8]);
+ var s=Math.sin(phi*Math.PI/180), Ka=(1-s)/(1+s), Pa=0.5*Ka*g*H*H;
+ return {s:'HGE',t:7,q:'A smooth vertical wall retains a '+H+' m dry backfill (\u03C6 = '+phi+'\u00B0, \u03B3 = '+g+' kN/m\u00B3, level surface). Evaluate the Rankine active thrust per meter.',
+ c:[r1(Pa)+' kN/m',r1(2*Pa)+' kN/m',r1(0.5*g*H*H)+' kN/m',r1(0.5/Ka*g*H*H)+' kN/m'],a:0,
+ sol:step(1,fx('K<sub>a</sub> = '+fr('1\u2212sin'+phi+'\u00B0','1+sin'+phi+'\u00B0')+' = '+r3(Ka)))+step(2,fx('P<sub>a</sub> = \u00BDK<sub>a</sub>\u03B3H\u00B2 = \u00BD('+r3(Ka)+')('+g+')('+H+')\u00B2'))+ans('Pa = '+r1(Pa)+' kN/m @ H/3 above the base')};},
+function(){var L=pk([1,1.5,2,2.5,3]),H=pk([0.2,0.25,0.3,0.4,0.5]);
+ var Q=1.84*L*Math.pow(H,1.5);
+ return {s:'HGE',t:3,q:'A suppressed rectangular weir (Francis) is '+L+' m long under a head of '+H+' m. Evaluate the discharge.',
+ c:[r3(Q)+' m\u00B3/s',r3(1.4*Math.pow(H,2.5))+' m\u00B3/s',r3(1.84*L*H)+' m\u00B3/s',r3(1.3*Q)+' m\u00B3/s'],a:0,
+ sol:step(1,fx('Q = 1.84LH<sup>3/2</sup> = 1.84('+L+')('+H+')<sup>1.5</sup>'))+ans('Q = '+r3(Q)+' m\u00B3/s')};}
+]};
+GENS.ALL=GENS.PSAD.concat(GENS.MSTE,GENS.HGE);
+
+function genUnique(g){
+  var q;
+  for(var k=0;k<8;k++){
+    q=g();
+    var seen={},dup=false;
+    for(var j=0;j<q.c.length;j++){if(seen[q.c[j]]){dup=true;break;}seen[q.c[j]]=1;}
+    if(!dup)return q;
+  }
+  return q; /* extremely rare fallback */
+}
+function buildMockPool(base,target){
+  var out=base.slice();
+  var gens = cfg.subj==='MIX' ? GENS.ALL : GENS[cfg.subj];
+  var i=Math.floor(Math.random()*gens.length), guard=0;
+  while(out.length<target && guard<target*4){ out.push(genUnique(gens[i%gens.length])); i++; guard++; }
+  return out;
+}
+</script>
+
+
+</body>
+</html>
